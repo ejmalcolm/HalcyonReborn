@@ -8,8 +8,8 @@ client = discord.Client()
 async def on_ready():
     print('Bot client has logged in.')
 
-@client.event
-async def on_message(message):
+@bot.command()
+async def inspect(message):
     if message.author == client.user:
         return
 

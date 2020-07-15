@@ -24,16 +24,18 @@ class Celestial:
         self.name = name
         self.xy = xy
         # add self to the region designated by xy
-        # TODO: add file management here
+        Regions = get_file('Regions.pickle')
         Regions[xy].content[name] = self
+        save_file(Regions, 'Regions.pickle')
         # add self to celestial storage
         # TODO: add file management here
+        Celestials = get_file('Celestials.pickle')
         Celestials[self.name] = self
+        save_file(Celestials, 'Celestials.pickle')
 
     def __str__(self):
         return self.name
 
-Planets = {}
 class Planet(Celestial):
 
     def __init__(self, name, xy):
