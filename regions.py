@@ -1,5 +1,6 @@
 from random import choice, random
 from files import save_file, get_file
+
 class Region:
     # each region is a cube of space along the galactic plane
     # 1milx1milx1mil KM
@@ -56,18 +57,18 @@ class Octant:
         # TODO | UNIQUES: do later
         # TODO | special case for NONE: polar, desert, wastes
 
-    def __init__(self, parent, label, hasBiomes = True):
+    def __init__(self, parent, label, has_biomes = True):
         self.parent = parent # the object the octant is attached to
         self.label = label # the reference label of the octant
         self.description = ''
-        self.hasBiomes = hasBiomes
+        self.has_biomes = has_biomes
         # now, we randomly select what resources this octant will have
         self.resources = {}
         RESOURCE_BIOMES = { 'Wood' : ('Forest', 'Jungle', 'Taiga'),
                             'Stone' : ('Hill', 'Steppe', 'Mountain'),
                             'Metal' : ('Cave', 'Crevice', 'Canyon')
                             }
-        if self.hasBiomes:
+        if self.has_biomes:
             i = 0
             descs = set([]) # use a set to make sure there's no repeats
             while i <= 0.75:
