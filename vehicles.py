@@ -1,5 +1,5 @@
 from regions import Region, Regions, Celestial, Celestials
-from bot import Payload
+from botInterface import Payload
 
 from math import sqrt
 
@@ -26,7 +26,7 @@ class Halcyon(Vehicle):
         super().__init__(owner, xy)
 
     def __str__(self):
-        return "%s's Halcyon" % self.owner
+        return f"{self.owner}'s Halcyon"
 
     def calc_slingshot(self, celest_1, celest_2):
         ### * bot-facing function * ###
@@ -37,7 +37,7 @@ class Halcyon(Vehicle):
             c1 = Celestials[celest_1]
             c2 = Celestials[celest_2]
         except KeyError as e:
-            return "The indicated celestial %s does not exist" % e
+            return f"The indicated celestial {e} does not exist"
         # now we send out a Payload object to the bot
         return Payload(self, ['Hello',], isTaskMaker=True, taskDuration=1,
                         onCompleteFunc=self.create_slingshot, onCompleteArgs = [c1, c2])
@@ -57,7 +57,7 @@ class Halcyon(Vehicle):
             self.linkRegion = linkRegion
 
         def __str__(self):
-            return "A Slingshot Path, linked to %s" % self.linkRegion
+            return f"A Slingshot Path, linked to {self.linkRegion}"
 
         def move_with(self, taker):
             # now, we get the distance between each celestial (in millions of miles)
@@ -76,6 +76,6 @@ Secondus = Celestial( 'Secondus', (25, 0) )
 
 x.create_slingshot(Primus, Secondus)
 
-print(a.content, b.content)
-print( Regions[ (0, 0) ].content[ "Breq's Halcyon" ].change_region(b) )
-print(a.content, b.content)
+print( list(a.content.keys()), list(b.content.keys()) )
+print( Regions[ (0, 0) ].content[ "Breq's Halcyon" ] )
+print( list(a.content.keys()), list(b.content.keys()) )

@@ -1,6 +1,5 @@
 from random import choice, random
-
-Regions = {} # general storage for all Regions
+from files import save_file, get_file
 class Region:
     # each region is a cube of space along the galactic plane
     # 1milx1milx1mil KM
@@ -10,7 +9,9 @@ class Region:
         self.content = {}
         # add self to the "region book"
         # TODO: add file management here
+        Regions = get_file('Regions.pickle')
         Regions[self.xy] = self
+        save_file(Regions, 'Regions.pickle')
     
     def __str__(self):
         return str(self.xy)
