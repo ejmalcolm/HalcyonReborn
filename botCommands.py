@@ -5,15 +5,11 @@ from config import TOKEN
 client = discord.Client()
 bot = commands.Bot(command_prefix='~')
 
-@client.event
-async def on_ready():
-    print('Bot client has logged in.')
-
 # * all commands should be primarily managed through the Player object's methods * #
 
 @bot.command()
-async def display_region(ctx, region_xy):
+async def inspect_region(ctx, region_xy):
     uid = ctx.message.author.id
-    ctx.send(uid)
+    await ctx.send(str(uid) + str(region_xy))
 
 bot.run(TOKEN)
