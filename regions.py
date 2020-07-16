@@ -18,7 +18,8 @@ class Region:
         return str(self.xy)
 
     def scan(self):
-        return Payload(self, [self.content])
+        contents_as_list = [str(obj) for obj in self.content.values()]
+        return Payload(self, ['This region contains the following entities:'] + contents_as_list)
 
 class Celestial:
     # any sort of non-actively propelled object in space
@@ -88,7 +89,9 @@ class Octant:
             self.description = self.description[:-1] # remove the extraneous extra space and y
             self.description += 's'
 
+
 # Region( (0,0) )
+# print(get_file('Regions.pickle'))
 # Region( (1,0) )
 # Celestial('Sol', (0,0) )
 # Primus = Planet('Primus', (1, 0))

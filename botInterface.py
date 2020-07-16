@@ -16,4 +16,8 @@ class Payload:
         return 'This is a bot payload originating from %s' % self.source
 
 def payload_manage(pload):
-    return pload.messages
+    # We unpack the messages into a single string:
+    bot_message = ''
+    for sub_message in pload.messages:
+        bot_message = bot_message + sub_message + '\n' 
+    return bot_message[:-1] # gets rid of the final linebreak

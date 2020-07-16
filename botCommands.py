@@ -5,8 +5,10 @@ from config import TOKEN
 from files import get_file, save_file
 from botInterface import Payload, payload_manage
 
-from players import Player
-from regions import Region
+# needs to have access to everything that could possibly be pickled
+from players import *
+from regions import *
+from vehicles import *
 
 client = discord.Client()
 bot = commands.Bot(command_prefix='~')
@@ -41,6 +43,7 @@ async def register_player(ctx, player_name):
 @bot.command()
 async def scan_region(ctx, target_xy):
     Regions = get_file('Regions.pickle')
+
     target_region = Regions[region_string_to_int(target_xy)] # translate coords to actual region
     result = target_region.scan()
     output = payload_manage(result)

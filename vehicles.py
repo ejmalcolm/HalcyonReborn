@@ -1,6 +1,7 @@
-from regions import Region, Celestial, Celestials
+from regions import Region, Celestial
 
 from botInterface import Payload
+
 from files import get_file, save_file
 
 from math import sqrt
@@ -76,16 +77,17 @@ class Halcyon(Vehicle):
                             onCompleteFunc = landing_obj.change_region, onCompleteArgs = self.linkRegion)
 
 
-Region( (0, 0) )
-Region( (25, 0 ) )
-x = Halcyon( 'Breq', (0, 0) )
-Primus = Celestial( 'Primus', (0, 0) )
-Secondus = Celestial( 'Secondus', (25, 0) )
+# x = Halcyon( 'Breq', (0, 0) )
+# print(get_file('Regions.pickle')[(0,0)].content)
+# Region( (25, 0 ) )
+# x = Halcyon( 'Breq', (0, 0) )
+# Primus = Celestial( 'Primus', (0, 0) )
+# Secondus = Celestial( 'Secondus', (25, 0) )
 
-x.create_slingshot(Primus, Secondus)
+# x.create_slingshot(Primus, Secondus)
 
-Regions = get_file('Regions.pickle')
-print(Regions[(0,0)].content, Regions[ (25,0) ].content)
-Regions[ (0, 0) ].content[ "Breq's Halcyon" ].change_region((25, 0))
-Regions = get_file('Regions.pickle')
-print(Regions[(0,0)].content, Regions[ (25,0) ].content)
+# Regions = get_file('Regions.pickle')
+# print(Regions[(0,0)].content, Regions[ (25,0) ].content)
+# Regions[ (0, 0) ].content[ "Breq's Halcyon" ].change_region((25, 0))
+# Regions = get_file('Regions.pickle')
+# print(Regions[(0,0)].content, Regions[ (25,0) ].content)

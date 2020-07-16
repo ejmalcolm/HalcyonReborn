@@ -1,5 +1,6 @@
 import pickle
 
+# * the pickled STORAGE dictionaries should store 
 
 def get_file(fname):
     try:
