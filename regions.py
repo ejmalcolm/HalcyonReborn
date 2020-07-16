@@ -1,5 +1,6 @@
 from random import choice, random
 from files import save_file, get_file
+from botInterface import Payload
 
 class Region:
     # each region is a cube of space along the galactic plane
@@ -8,8 +9,7 @@ class Region:
     def __init__(self, xy):
         self.xy = xy
         self.content = {}
-        # add self to the "region book"
-        # TODO: add file management here
+        # add self to the Regions dict
         Regions = get_file('Regions.pickle')
         Regions[self.xy] = self
         save_file(Regions, 'Regions.pickle')
@@ -17,7 +17,9 @@ class Region:
     def __str__(self):
         return str(self.xy)
 
-Celestials = {}
+    def scan(self):
+        return Payload(self, [self.content])
+
 class Celestial:
     # any sort of non-actively propelled object in space
 
