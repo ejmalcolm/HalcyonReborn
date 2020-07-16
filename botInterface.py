@@ -15,4 +15,5 @@ class Payload:
     def __str__(self):
         return 'This is a bot payload originating from %s' % self.source
 
-    
+def payload_manage(pload):
+    return pload.messages
