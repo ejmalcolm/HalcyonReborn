@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import functools
 
 from config import TOKEN
 from files import get_file, save_file
@@ -13,9 +14,9 @@ from vehicles import *
 client = discord.Client()
 bot = commands.Bot(command_prefix='~')
 
-# * any command that involves RETURNING something from a function should be managed as a Payload!! * #
 
-def region_string_to_int(region_string): # converts an '(x, y)' string to a tuple (x, y)
+def region_string_to_int(region_string):
+    '''Converts a string '(x, y)' to a tuple (x, y)'''
     splitforms = region_string.split(',')
     nospaces = [x.replace(' ', '') for x in splitforms]
     noparens = [x.replace('(', '') for x in nospaces]
@@ -23,11 +24,16 @@ def region_string_to_int(region_string): # converts an '(x, y)' string to a tupl
     asints = [int(x) for x in noparens2]
     return (asints[0], asints[1])
 
-def entity_display_to_id(entity_display): # converts an entity's display name to its internal ID
+
+def entity_display_to_id(entity_display):
+    '''Converts an entity's display name to its internal ID'''
     # * entity display will be in the form "Owners's Entity | "
     # * we need it to be in the form OWNERentity
     # first, we strip it into two words
-    owner, entity = entity_display.split()
+    try:
+        owner, entity = entity_display.split()
+    except ValueError:  # unless it's already one word
+        return entity_display
     # for owner, we remove the 's and uppercase it
     owner = owner[:-2].upper()
     # for entity, we just lowercase it
@@ -35,13 +41,24 @@ def entity_display_to_id(entity_display): # converts an entity's display name to
     # then for the return we just combine the two
     return owner + entity
 
-def error_checker(func):
-    def wrapper():
-        print('test')
-        return func()
+
+def error_helper(coro):
+    @functools.wraps(coro)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await coro(*args, **kwargs)
+        except KeyError as e:
+            print(f'KeyError: {e}')
+            ctx = args[0]
+            return await ctx.send(f'```ERROR: No match found for the key {e}.```')
+        except ValueError as e:
+            print(f'ValueError: {e}')
+            ctx = args[0]
+            return await ctx.send('```ERROR: ValueError. Check your spaces and quotes!```')
     return wrapper
 
-@bot.command() # ! this is the one exception to payloads due to... weirdness. maybe rewrite later ! #
+
+@bot.command()
 async def register_player(ctx, player_name):
     uid = ctx.message.author.id
     # make sure this is a unique player
@@ -53,21 +70,25 @@ async def register_player(ctx, player_name):
     if player_name in [p.name for p in Players.values()]:
         await ctx.send('Error: a player already has this name!')
         return
-    #if both of those are math, initialize a Player object
+    # if both of those are math, initialize a Player object
     Player(uid, player_name)
     await ctx.send(f'Player {player_name} created with UID {uid}')
     return
 
-@error_checker
+
 @bot.command()
+@error_helper
 async def scan_region(ctx, target_xy):
     Regions = get_file('Regions.pickle')
-    target_region = Regions[region_string_to_int(target_xy)] # translate coords to actual region
+    # translate coords to actual region object
+    target_region = Regions[region_string_to_int(target_xy)]
     result = target_region.scan()
     output = payload_manage(result)
     await ctx.send(output)
 
+
 @bot.command()
+@error_helper
 async def inspect(ctx, entity_display_string, target_xy):
     # first, we get the region python_object we want
     Regions = get_file('Regions.pickle')
@@ -79,5 +100,5 @@ async def inspect(ctx, entity_display_string, target_xy):
     # inspect it and send the result to payload manager
     output = payload_manage(inspect_target.inspect())
     await ctx.send(output)
-     
+
 bot.run(TOKEN)

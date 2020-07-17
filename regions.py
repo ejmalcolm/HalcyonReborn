@@ -2,6 +2,7 @@ from random import choice, random
 from files import save_file, get_file
 from botInterface import Payload
 
+
 class Region:
     # each region is a cube of space along the galactic plane
     # 1milx1milx1mil KM
@@ -18,8 +19,10 @@ class Region:
         return str(self.xy)
 
     def scan(self):
-        contents_as_list = [str(obj) for obj in self.content.values()]
-        return Payload(self, ['This region contains the following entities:'] + contents_as_list)
+        content_list = [str(obj) for obj in self.content.values()]
+        messages = ['This region contains the following entities:'] + content_list
+        return Payload(self, messages)
+
 
 class Celestial:
     # any sort of non-actively propelled object in space
@@ -40,6 +43,7 @@ class Celestial:
     def __str__(self):
         return self.name
 
+
 class Planet(Celestial):
 
     def __init__(self, name, xy):
@@ -48,11 +52,12 @@ class Planet(Celestial):
 
     def gen_octants(self):
         OCTANT_LABELS = ('North', 'Northeast', 'East', 'Southeast',
-                        'South', 'Southwest', 'West', 'Northwest')
+                         'South', 'Southwest', 'West', 'Northwest')
         # this is the part that randomly assigns the biomes to octants
         octants = {}
         for lab in OCTANT_LABELS:
-            octants[lab] = Octant(self, lab) # create an Octant object (with random biomes) and append it
+            # create an Octant object (with random biomes) and append it
+            octants[lab] = Octant(self, lab)
         return octants
 
 class Octant:
