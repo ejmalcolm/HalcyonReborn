@@ -58,8 +58,33 @@ def error_helper(coro):
         except AttributeError as e:
             print(f'AttributeError: {e}')
             ctx = args[0]
-            return await ctx.send('```ERROR: Target does not possess that ability.')
+            return await ctx.send('```ERROR: Target does not possess that ability.```')
+        except TypeError as e:
+            print(f'TypeError: {e}')
+            ctx = args[0]
+            return await ctx.send(f'```{e}```')
+        except commands.errors.MissingRequiredArgument as e:
+            print(e)
+            ctx = args[0]
+            return await ctx.send(e)
     return wrapper
+
+
+def get_entity_obj(entity_display, target_xy):
+    '''Gets a target entity object given a entity_string and a region'''
+    # get the region
+    Regions = get_file('Regions.pickle')
+    target_region = Regions[region_string_to_int(target_xy)]
+    # get the entity's ID
+    entity_id = entity_display_to_id(entity_display)
+    # get the entity object
+    target_entity = target_region.content[entity_id]
+    return target_entity
+
+
+@bot.command()
+async def help(ctx, command):
+    pass
 
 
 @bot.command()
@@ -94,20 +119,22 @@ async def scan_region(ctx, target_xy):
 @bot.command()
 @error_helper
 async def inspect(ctx, entity_display_string, target_xy):
-    # first, we get the region python_object we want
-    Regions = get_file('Regions.pickle')
-    target_region = Regions[region_string_to_int(target_xy)]
-    # then we get the target entity's internal ID
-    target_entity_id = entity_display_to_id(entity_display_string)
-    # then we get the actual object we want
-    inspect_target = target_region.content[target_entity_id]
+    # get the obj we want
+    target = get_entity_obj(entity_display_string, target_xy)
     # inspect it and send the result to payload manager
-    output = payload_manage(inspect_target.A_inspect())
+    output = payload_manage(target.A_inspect())
     await ctx.send(output)
+
 
 @bot.command()
 @error_helper
-async def use_ability(ctx, ability, *args)
-
+async def use_ability(ctx, caster_entity_name, target_xy, ability, *args):
+    # get the entity object
+    caster = get_entity_obj(caster_entity_name, target_xy)
+    # get the method linked to the ability
+    ability_method = getattr(caster, 'A_' + ability)
+    # call the method
+    output = payload_manage(ability_method())
+    await ctx.send(output)
 
 bot.run(TOKEN)

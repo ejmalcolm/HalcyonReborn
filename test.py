@@ -1,18 +1,13 @@
-def second_wrapper(func):
-    def wrapper():
-        print('yay!')
-        func()
-    return wrapper
+from regions import Region
 
-def first_wrapper(func):
-    def wrapper():
-        print('YAY!')
-        func()
-    return wrapper
+class Rabbit:
 
-@second_wrapper
-@first_wrapper
-def test_function():
-    print('oh')
+    def __init__(self):
+        pass
 
-test_function()
+    def one(self):
+        print('1')
+
+
+a = Region((15, 15))
+print(getattr(a, 'scan'))

@@ -17,7 +17,7 @@ class Vehicle:
         self.xy = xy  # the initial coordinates of this halcyon
         self.id = self.owner.upper() + (type(self).__name__).lower() # e.g. EVANhalcyon
         # get all the functions that can be "cast"-- abilities in game terms
-        self.abilities = [f[1:] for f in dir(type(self)) if f.startwith('A_')]
+        self.abilities = [f[2:] for f in dir(type(self)) if f.startswith('A_')]
         # store self into Regions.pickle
         Regions = get_file('Regions.pickle')
         Regions[self.xy].content[self.id] = self
