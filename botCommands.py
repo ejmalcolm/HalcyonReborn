@@ -35,6 +35,12 @@ def entity_display_to_id(entity_display): # converts an entity's display name to
     # then for the return we just combine the two
     return owner + entity
 
+def error_checker(func):
+    def wrapper():
+        print('test')
+        return func()
+    return wrapper
+
 @bot.command() # ! this is the one exception to payloads due to... weirdness. maybe rewrite later ! #
 async def register_player(ctx, player_name):
     uid = ctx.message.author.id
@@ -52,6 +58,7 @@ async def register_player(ctx, player_name):
     await ctx.send(f'Player {player_name} created with UID {uid}')
     return
 
+@error_checker
 @bot.command()
 async def scan_region(ctx, target_xy):
     Regions = get_file('Regions.pickle')

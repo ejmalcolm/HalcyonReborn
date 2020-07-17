@@ -20,4 +20,4 @@ def payload_manage(pload):
     bot_message = '```' # send it as a code block
     for sub_message in pload.messages:
         bot_message = bot_message + sub_message + '\n'  
-    return bot_message[:-1] + '```' # gets rid of the final linebreak
+    return bot_message[:-1] + '```' # gets rid of the final linebreak and complete codeblock
