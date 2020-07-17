@@ -14,13 +14,14 @@ class Region:
         Regions = get_file('Regions.pickle')
         Regions[self.xy] = self
         save_file(Regions, 'Regions.pickle')
-    
+
     def __str__(self):
         return str(self.xy)
 
     def scan(self):
+        prefix = ['This region contains the following entities:']
         content_list = [str(obj) for obj in self.content.values()]
-        messages = ['This region contains the following entities:'] + content_list
+        messages = prefix + content_list
         return Payload(self, messages)
 
 
@@ -60,38 +61,44 @@ class Planet(Celestial):
             octants[lab] = Octant(self, lab)
         return octants
 
+
 class Octant:
 
-        # TODO | UNIQUES: do later
-        # TODO | special case for NONE: polar, desert, wastes
+    # TODO | UNIQUES: do later
+    # TODO | special case for NONE: polar, desert, wastes
 
-    def __init__(self, parent, label, has_biomes = True):
-        self.parent = parent # the object the octant is attached to
-        self.label = label # the reference label of the octant
+    def __init__(self, parent, label, has_biomes=True):
+        self.parent = parent  # the object the octant is attached to
+        self.label = label  # the reference label of the octant
         self.description = ''
         self.has_biomes = has_biomes
         # now, we randomly select what resources this octant will have
         self.resources = {}
-        RESOURCE_BIOMES = { 'Wood' : ('Forest', 'Jungle', 'Taiga'),
-                            'Stone' : ('Hill', 'Steppe', 'Mountain'),
-                            'Metal' : ('Cave', 'Crevice', 'Canyon')
-                            }
+        RESOURCE_BIOMES = {'Wood': ('Forest', 'Jungle', 'Taiga'),
+                           'Stone': ('Hill', 'Steppe', 'Mountain'),
+                           'Metal': ('Cave', 'Crevice', 'Canyon')
+                           }
         if self.has_biomes:
             i = 0
-            descs = set([]) # use a set to make sure there's no repeats
+            descs = set([])  # use a set to make sure there's no repeats
             while i <= 0.75:
-                res = choice(list(RESOURCE_BIOMES)) # pick a random resource from the list to add
-                descs.add(choice(RESOURCE_BIOMES[res])) # pick a random biome associated with that choice
-                try: 
-                    self.resources[res] += 5 # try to add 5 of the resource
+                # pick a random resource from the list to add
+                res = choice(list(RESOURCE_BIOMES))
+                # pick a random biome associated with that choice
+                descs.add(choice(RESOURCE_BIOMES[res]))
+                try:
+                    # try to add 5 of the resource
+                    self.resources[res] += 5
                 except KeyError:
-                    self.resources[res] = 5 # if it fails, there's none of that resource
-                                            # therefore we should set it to 5 instead 
+                    # if it fails, there's none of that resource
+                    # therefore we should set it to 5 instead
+                    self.resources[res] = 5
                 i += random()
             for d in sorted(list(descs), reverse=True):
                 self.description += d
                 self.description += ' '
-            self.description = self.description[:-1] # remove the extraneous extra space and y
+            # remove the extraneous extra space and 'y'
+            self.description = self.description[:-1]
             self.description += 's'
 
 

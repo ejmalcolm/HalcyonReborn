@@ -1,5 +1,5 @@
 from files import save_file, get_file
-from botInterface import Payload
+
 
 class Player:
 
@@ -7,7 +7,7 @@ class Player:
         # set attributes
         self.uid = uid
         self.name = name
-        #store self into Players dict
+        # store self into Players dict
         Players = get_file('Players.pickle')
         Players[uid] = self
         save_file(Players, 'Players.pickle')

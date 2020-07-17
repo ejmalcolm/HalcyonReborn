@@ -55,6 +55,10 @@ def error_helper(coro):
             print(f'ValueError: {e}')
             ctx = args[0]
             return await ctx.send('```ERROR: ValueError. Check your spaces and quotes!```')
+        except AttributeError as e:
+            print(f'AttributeError: {e}')
+            ctx = args[0]
+            return await ctx.send('```ERROR: Target does not possess that ability.')
     return wrapper
 
 
@@ -98,7 +102,12 @@ async def inspect(ctx, entity_display_string, target_xy):
     # then we get the actual object we want
     inspect_target = target_region.content[target_entity_id]
     # inspect it and send the result to payload manager
-    output = payload_manage(inspect_target.inspect())
+    output = payload_manage(inspect_target.A_inspect())
     await ctx.send(output)
+
+@bot.command()
+@error_helper
+async def use_ability(ctx, ability, *args)
+
 
 bot.run(TOKEN)
