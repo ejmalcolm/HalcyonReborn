@@ -1,5 +1,3 @@
-from regions import Region
-
 class Rabbit:
 
     def __init__(self):
@@ -9,5 +7,6 @@ class Rabbit:
         print('1')
 
 
-a = {}
-b = a[1].append('2')
+a = [1, 2, 3]
+b = *a
+print(a)

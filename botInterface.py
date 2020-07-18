@@ -25,6 +25,7 @@ def payload_manage(pload):
         current_HSE = time() // 3600
         # add the duration to figure out when to trigger
         trigger_time = current_HSE + pload.taskDuration
+        # create a Task, rest is handled in tasks.py
         Task(trigger_time, pload.onCompleteFunc, pload.onCompleteArgs)
     # * message management and output
     # We unpack the messages into a single string:
@@ -36,6 +37,6 @@ def payload_manage(pload):
 
 # a = Payload(None, ['hi'], isTaskMaker=True,
 #             taskDuration=1,onCompleteFunc=print,
-#             onCompleteArgs='yes')
+#             onCompleteArgs=['yay yay yay'])
 
 # payload_manage(a)

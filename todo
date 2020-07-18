@@ -1,0 +1,19 @@
+- we need to make the payload that's generated from task trigger_funcs to get to the bot somehow
+
+for example, if we use a halcyon's space_move, on using space_move, it will send:
+``` in x hours, the halcyon will move to (x,y) ```
+
+when x hours will up, change_region will be called and all is well
+
+BUT the payload from change_region won't go to the bot, no messages will be sent
+
+MAYBE have check_tasks return all the different payloads and have that go to the bot somehow?
+
+
+ALSO:
+player filtering stuff (some sort of decorator that relies on a common syntax?)
+
+@def player_filter():
+    def wrapper()
+        args[0].author.uid = player
+        if args[1].owner == player # where args[1] is the entity object
