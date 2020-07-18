@@ -6,7 +6,7 @@ import asyncio
 from config import TOKEN
 from files import get_file, save_file
 from botInterface import Payload, payload_manage
-from tasks import check_tasks
+from tasks import Task, check_tasks
 
 # needs to have access to everything that could possibly be pickled
 from players import *
@@ -88,15 +88,22 @@ def get_entity_obj(entity_display, target_xy):
     return target_entity
 
 
-# * BG TASKS * # 
+# * BG TASKS * #
+
 
 # checks all tasks every x amount of time
 async def task_check_loop():
     await bot.wait_until_ready()
     while not bot.is_closed():
-        output = check_tasks()
+        # check all tasks and register the returning payloads as output
+        payloads = check_tasks()
+        # send the list of messages
+        channel = bot.get_channel(734116611300261939)
+        for p in payloads:
+            output = payload_manage(p)
+            await channel.send(output)
         # in seconds, determine how long between checks
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
 
 
 # * COMMANDS * #
@@ -172,7 +179,7 @@ async def inspect(ctx, entity_display_string, target_xy):
 
 
 @bot.command()
-@error_helper
+# @error_helper
 async def use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
     """Activates a given ability possessed by a given entity
 
@@ -186,7 +193,7 @@ async def use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
     # get the method linked to the ability
     ability_method = getattr(caster, 'A_' + ability)
     # call the method
-    output = payload_manage(ability_method())
+    output = payload_manage(ability_method(*args))
     await ctx.send(output)
 
 

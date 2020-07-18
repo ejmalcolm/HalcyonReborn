@@ -1,6 +1,6 @@
-from files import get_file, save_file
-
 from time import time
+
+from files import get_file, save_file
 
 
 class Task:
@@ -33,26 +33,37 @@ def check_tasks():
     '''Runs through all tasks and runs then removes the appropriate ones'''
     Tasks = get_file('Tasks.pickle')
     current_HSE = int(time() / 3600)
-    print(current_HSE)
+    print(f'CURRENT TIME: {current_HSE}')
+    print(f'TASKS BEFORE: {Tasks}')
+    payloads = []
     # check every hour that currently has tasks on it
     for key in Tasks:
         # if that hour is before/equal to the current hour
         if key <= current_HSE:
             # complete all tasks under that hour
             for t in Tasks[key]:
-                t.complete()
-            # then delete that hour
-            del Tasks[key]
+                task_return = t.complete()
+                payloads.append(task_return)
+    # then, we create a new tasks dictionary with only the hours yet to come
+    Tasks = {key: value for (key, value) in Tasks.items() if key > current_HSE}
+    save_file(Tasks, 'Tasks.pickle')
+    # send the output to the botCommands background loop
+    return payloads
 
-# Tasks = {}
-# save_file(Tasks, 'Tasks.pickle')
 
-# def test():
-#     print('test!!!')
+def return_dummy(a):
+    return a
+
+# empty = {}
+# save_file(empty, 'Tasks.pickle')
+
 
 # current_HSE = time() // 3600
-# a = Task(current_HSE, test, [])
-# b = Task(current_HSE-5, print, ['before'])
-# c = Task(current_HSE+5, print, ['after'])
+# a = Task(current_HSE, return_dummy, ['current'])
+# b = Task(current_HSE - 5, return_dummy, ['before'])
+# c = Task(current_HSE + 5, return_dummy, ['after'])
 
-# check_tasks()
+# print(get_file('Tasks.pickle'))
+
+# d = check_tasks()
+# print(d)

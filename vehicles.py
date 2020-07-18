@@ -14,6 +14,16 @@ def distance_between(x1, x2, y1, y2):
     distance = sqrt(((x1 - x2)**2) + ((y1 - y2)**2))
     return distance
 
+# ! duplicate from botCommands, move both to botInterface? ! #
+def region_string_to_int(region_string):
+    """Converts a string '(x, y)' to a tuple (x, y)"""
+    splitforms = region_string.split(',')
+    nospaces = [x.replace(' ', '') for x in splitforms]
+    noparens = [x.replace('(', '') for x in nospaces]
+    noparens2 = [x.replace(')', '') for x in noparens]
+    asints = [int(x) for x in noparens2]
+    return (asints[0], asints[1])
+
 
 class Vehicle:
 
@@ -31,11 +41,14 @@ class Vehicle:
     def change_region(self, new_region_xy):
         # remove self from old region
         Regions = get_file('Regions.pickle')
-        del Regions[self.xy].content[str(self)]
+        del Regions[self.xy].content[self.id]
         # add self to new region
         new_region = Regions[new_region_xy]
-        new_region.content[str(self)] = self
+        new_region.content[self.id] = self
         save_file(Regions, 'Regions.pickle')
+        # managing output (what the bot should send)
+        messages = [f'{self} has arrived in {new_region_xy}']
+        return Payload(self, messages)
 
     def A_inspect(self):
         '''Returns details describing the current state of this entity'''
@@ -55,14 +68,16 @@ class Spaceship(Vehicle):
         self.speed_space = speed_space
         super().__init__(owner, xy)
 
-    def A_space_travel(self, adjacent_region_xy):
+    def A_space_travel(self, adjacent_region_str):
         '''Move to an adjacent region of space
 
         adjacent_region_xy -- (x,y) coordinates of an adjacent region'''
         # get the two region objects
         Regions = get_file('Regions.pickle')
         r1 = Regions[self.xy]
-        r2 = Regions[adjacent_region_xy]
+        # this is a user-facing ability, so adjacent_region_str is a string
+        adjacent_region_tup = region_string_to_int(adjacent_region_str)
+        r2 = Regions[adjacent_region_tup]
         # calculate the distance between the two regions
         distance = distance_between(r1.xy[0], r2.xy[0], r1.xy[1], r2.xy[1])
         # calculate the time it would take in hours
@@ -72,7 +87,7 @@ class Spaceship(Vehicle):
         return Payload(self, messages, isTaskMaker=True,
                        taskDuration=duration,
                        onCompleteFunc=self.change_region,
-                       onCompleteArgs=adjacent_region_xy)
+                       onCompleteArgs=[adjacent_region_tup])
 
 
 class Halcyon(Spaceship):
@@ -129,8 +144,8 @@ class Halcyon(Spaceship):
 
 
 # Region ( (0,0) )
-# Region((0,25))
-# x = Halcyon( 'Breq', (0, 0) )
+# Region( (1, 0) )
+# x = Halcyon( 'Storm', (0, 0) )
 # b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
 # c = b.A_space_travel((25,0))
 # print(c)

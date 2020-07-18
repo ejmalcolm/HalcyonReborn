@@ -4,9 +4,10 @@ from tasks import Task
 # * things that are used to interact with the bot * #
 
 class Payload:
+    '''onCompleteArgs MUST BE A LIST'''
 
     def __init__(self, source, messages, isTaskMaker=False,
-                 taskDuration=None, onCompleteFunc=None, onCompleteArgs=None):
+                 taskDuration=None, onCompleteFunc=None, onCompleteArgs=[]):
         self.source = source
         self.messages = messages
         self.isTaskMaker = isTaskMaker
@@ -23,7 +24,8 @@ def payload_manage(pload):
     if pload.isTaskMaker:
         # get numbers of hours since epoch (HSE) right now
         current_HSE = time() // 3600
-        # add the duration to figure out when to trigger
+        # add the duration to figure out when to 
+        # ! this current implementation means a 1hr duration ability cast at 3:59pm will trigger at 4:00pm ! #
         trigger_time = current_HSE + pload.taskDuration
         # create a Task, rest is handled in tasks.py
         Task(trigger_time, pload.onCompleteFunc, pload.onCompleteArgs)
