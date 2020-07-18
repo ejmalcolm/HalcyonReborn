@@ -14,8 +14,8 @@ class Vehicle:
 
     def __init__(self, owner, xy):
         self.owner = owner  # the Player object that owns this
-        self.xy = xy  # the initial coordinates of this halcyon
-        self.id = self.owner.upper() + (type(self).__name__).lower() # e.g. EVANhalcyon
+        self.xy = xy  # the initial coordinates of this vehicle
+        self.id = self.owner.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
         # get all the functions that can be "cast"-- abilities in game terms
         self.abilities = [f[2:] for f in dir(type(self)) if f.startswith('A_')]
         # store self into Regions.pickle
@@ -33,16 +33,32 @@ class Vehicle:
         save_file(Regions, 'Regions.pickle')
 
     def A_inspect(self):
+        '''Returns details describing the current state of this entity'''
         messages = [f'A {type(self).__name__} belonging to {self.owner}.',
                     f'It is currently in the region {self.xy}',
                     f'It has the following abilities: {self.abilities}']
         return Payload(self, messages)
 
 
-class Halcyon(Vehicle):
+class Spaceship(Vehicle):
+    '''Any vessel capable of spacefaring travel
+
+    speed_space -- Speed in space, in millions km/hr
+    '''
+
+    def __init__(self, owner, xy, speed_space=0):
+        super().__init__(owner, xy)
+        self.speed_space = speed_space
+
+    def A_move_region(self, adjacent_region):
+        '''Move towards an adjacent region'''
+        pass
+
+
+class Halcyon(Spaceship):
 
     def __init__(self, owner, xy):
-        super().__init__(owner, xy)
+        super().__init__(owner, xy, speed_space=1)
 
     def __str__(self):
         return f"{self.owner}'s Halcyon"

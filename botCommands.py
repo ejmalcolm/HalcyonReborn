@@ -16,7 +16,7 @@ bot = commands.Bot(command_prefix='~')
 
 
 def region_string_to_int(region_string):
-    '''Converts a string '(x, y)' to a tuple (x, y)'''
+    """Converts a string '(x, y)' to a tuple (x, y)"""
     splitforms = region_string.split(',')
     nospaces = [x.replace(' ', '') for x in splitforms]
     noparens = [x.replace('(', '') for x in nospaces]
@@ -26,7 +26,7 @@ def region_string_to_int(region_string):
 
 
 def entity_display_to_id(entity_display):
-    '''Converts an entity's display name to its internal ID'''
+    """Converts an entity's display name to its internal ID"""
     # * entity display will be in the form "Owners's Entity | "
     # * we need it to be in the form OWNERentity
     # first, we strip it into two words
@@ -71,7 +71,11 @@ def error_helper(coro):
 
 
 def get_entity_obj(entity_display, target_xy):
-    '''Gets a target entity object given a entity_string and a region'''
+    """Gets a target entity object given a entity_string and a region
+
+    entity_display -- The display name of an entity, e.g. "Breq's Halcyon" \n
+    target_xy -- The "(x, y)" coordinates of the region containing the entity
+    """
     # get the region
     Regions = get_file('Regions.pickle')
     target_region = Regions[region_string_to_int(target_xy)]
@@ -81,14 +85,25 @@ def get_entity_obj(entity_display, target_xy):
     target_entity = target_region.content[entity_id]
     return target_entity
 
-
 @bot.command()
-async def help(ctx, command):
-    pass
+async def ability_help(ctx, entity_display, target_xy, ability):
+    """Sends a help display for an ability of a given entity
+
+    entity_display -- The display name of the target, e.g. "Breq's Halcyon" \n
+    target_xy -- The (x,y) coordinates of the target \n
+    ability -- The ability name to display help for (shown by ~inspect)
+    """
+    target = get_entity_obj(entity_display, target_xy)
+    ability_method = getattr(target, 'A_' + ability)
+    await ctx.send('```' + ability_method.__doc__ + '```')
 
 
 @bot.command()
 async def register_player(ctx, player_name):
+    """Registers a Discord user under the given player_name.
+
+    player_name -- The player name to register the Discord user under.
+    """
     uid = ctx.message.author.id
     # make sure this is a unique player
     Players = get_file('Players.pickle')
@@ -102,12 +117,14 @@ async def register_player(ctx, player_name):
     # if both of those are math, initialize a Player object
     Player(uid, player_name)
     await ctx.send(f'Player {player_name} created with UID {uid}')
-    return
 
 
 @bot.command()
 @error_helper
 async def scan_region(ctx, target_xy):
+    """Returns the contents of the region matching the given coordinates
+
+    target_xy -- The (x,y) coordinates of the region to scan"""
     Regions = get_file('Regions.pickle')
     # translate coords to actual region object
     target_region = Regions[region_string_to_int(target_xy)]
@@ -119,6 +136,10 @@ async def scan_region(ctx, target_xy):
 @bot.command()
 @error_helper
 async def inspect(ctx, entity_display_string, target_xy):
+    """Provides details about a given entity
+
+    entity_display_string -- The display name of the target entity
+    target_xy -- The (x,y) coordinates of the region containing the target"""
     # get the obj we want
     target = get_entity_obj(entity_display_string, target_xy)
     # inspect it and send the result to payload manager
@@ -128,9 +149,16 @@ async def inspect(ctx, entity_display_string, target_xy):
 
 @bot.command()
 @error_helper
-async def use_ability(ctx, caster_entity_name, target_xy, ability, *args):
+async def use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
+    """Activates a given ability possessed by a given entity
+
+    caster_entity_name -- The entity who's ability you wish to use
+    caster_xy -- The (x,y) coordinates of the region containing the caster
+    ability -- The name of the ability you want to use (shown by ~inspect)
+    *args -- Any arguments needed for the ability
+    """
     # get the entity object
-    caster = get_entity_obj(caster_entity_name, target_xy)
+    caster = get_entity_obj(caster_entity_name, caster_xy)
     # get the method linked to the ability
     ability_method = getattr(caster, 'A_' + ability)
     # call the method

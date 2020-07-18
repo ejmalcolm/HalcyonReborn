@@ -9,5 +9,5 @@ class Rabbit:
         print('1')
 
 
-a = Region((15, 15))
-print(getattr(a, 'scan'))
+a = print
+print(a.__doc__)
