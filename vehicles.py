@@ -10,6 +10,11 @@ from math import sqrt
 # TODO: maybe change all these xy attributes to just giving the Region
 
 
+def distance_between(x1, x2, y1, y2):
+    distance = sqrt(((x1 - x2)**2) + ((y1 - y2)**2))
+    return distance
+
+
 class Vehicle:
 
     def __init__(self, owner, xy):
@@ -46,13 +51,28 @@ class Spaceship(Vehicle):
     speed_space -- Speed in space, in millions km/hr
     '''
 
-    def __init__(self, owner, xy, speed_space=0):
-        super().__init__(owner, xy)
+    def __init__(self, owner, xy, speed_space=1):
         self.speed_space = speed_space
+        super().__init__(owner, xy)
 
-    def A_move_region(self, adjacent_region):
-        '''Move towards an adjacent region'''
-        pass
+    def A_space_travel(self, adjacent_region_xy):
+        '''Move to an adjacent region of space
+
+        adjacent_region_xy -- (x,y) coordinates of an adjacent region'''
+        # get the two region objects
+        Regions = get_file('Regions.pickle')
+        r1 = Regions[self.xy]
+        r2 = Regions[adjacent_region_xy]
+        # calculate the distance between the two regions
+        distance = distance_between(r1.xy[0], r2.xy[0], r1.xy[1], r2.xy[1])
+        # calculate the time it would take in hours
+        duration = distance / self.speed_space
+        messages = [f'{self} is now moving towards {r2}.',
+                    f'It will arrive in {duration} hours']
+        return Payload(self, messages, isTaskMaker=True,
+                       taskDuration=duration,
+                       onCompleteFunc=self.change_region,
+                       onCompleteArgs=adjacent_region_xy)
 
 
 class Halcyon(Spaceship):
@@ -99,7 +119,7 @@ class Halcyon(Spaceship):
 
         def landing_func(self, landing_obj):
             # get the distance between each celestial (in millions of miles)
-            distance = sqrt(((self.xy[0] - self.linkRegion.xy[0])**2) + ((self.xy[1] - self.linkRegion.xy[1])**2))
+            distance = distance_between(self.xy[0], self.linkRegion.xy[0], self.xy[1], self.linkRegion.xy[1])
             # divide that distance by the slingshot travel rate
             travel_time = distance / 25
             return Payload(self, ['Hello'], isTaskMaker=True,
@@ -108,9 +128,12 @@ class Halcyon(Spaceship):
                            onCompleteArgs=self.linkRegion)
 
 
-# Region ( (0,0) )
-# x = Halcyon( 'Breq', (0, 0) )
-# print(get_file('Regions.pickle')[(0,0)].content['BREQhalcyon'])
+Region ( (0,0) )
+Region((0,25))
+x = Halcyon( 'Breq', (0, 0) )
+b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
+c = b.A_space_travel((25,0))
+print(c)
 # Region( (25, 0 ) )
 # x = Halcyon( 'Breq', (0, 0) )
 # Primus = Celestial( 'Primus', (0, 0) )

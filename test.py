@@ -9,5 +9,5 @@ class Rabbit:
         print('1')
 
 
-a = print
-print(a.__doc__)
+a = {}
+b = a[1].append('2')
