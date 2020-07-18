@@ -166,7 +166,7 @@ async def scan_region(ctx, target_xy):
 
 @bot.command()
 @error_helper
-async def inspect(ctx, entity_display_string, target_xy):
+async def inspect_entity(ctx, entity_display_string, target_xy):
     """Provides details about a given entity
 
     entity_display_string -- The display name of the target entity
