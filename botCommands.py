@@ -85,6 +85,7 @@ def get_entity_obj(entity_display, target_xy):
     target_entity = target_region.content[entity_id]
     return target_entity
 
+
 @bot.command()
 async def ability_help(ctx, entity_display, target_xy, ability):
     """Sends a help display for an ability of a given entity
@@ -95,7 +96,14 @@ async def ability_help(ctx, entity_display, target_xy, ability):
     """
     target = get_entity_obj(entity_display, target_xy)
     ability_method = getattr(target, 'A_' + ability)
-    await ctx.send('```' + ability_method.__doc__ + '```')
+    arg_count = ability_method.__code__.co_argcount
+    arguments = str(ability_method.__code__.co_varnames[1:arg_count])
+    messages = [str(ability_method.__name__)[2:] + '-- Arguments: ' + arguments,
+                str(ability_method.__doc__)]
+    print(messages)
+    output = payload_manage(Payload(None, messages))
+    print(output)
+    await ctx.send(output)
 
 
 @bot.command()
