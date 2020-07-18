@@ -32,14 +32,17 @@ class Task:
 def check_tasks():
     '''Runs through all tasks and runs then removes the appropriate ones'''
     Tasks = get_file('Tasks.pickle')
-    current_HSE = time() / 3600
+    current_HSE = int(time() / 3600)
+    print(current_HSE)
     # check every hour that currently has tasks on it
     for key in Tasks:
         # if that hour is before/equal to the current hour
         if key <= current_HSE:
-            # get the task list
+            # complete all tasks under that hour
             for t in Tasks[key]:
                 t.complete()
+            # then delete that hour
+            del Tasks[key]
 
 # Tasks = {}
 # save_file(Tasks, 'Tasks.pickle')

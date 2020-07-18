@@ -128,12 +128,12 @@ class Halcyon(Spaceship):
                            onCompleteArgs=self.linkRegion)
 
 
-Region ( (0,0) )
-Region((0,25))
-x = Halcyon( 'Breq', (0, 0) )
-b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
-c = b.A_space_travel((25,0))
-print(c)
+# Region ( (0,0) )
+# Region((0,25))
+# x = Halcyon( 'Breq', (0, 0) )
+# b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
+# c = b.A_space_travel((25,0))
+# print(c)
 # Region( (25, 0 ) )
 # x = Halcyon( 'Breq', (0, 0) )
 # Primus = Celestial( 'Primus', (0, 0) )

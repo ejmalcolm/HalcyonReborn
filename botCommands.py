@@ -1,10 +1,12 @@
 import discord
-from discord.ext import commands
+from discord.ext import tasks, commands
 import functools
+import asyncio
 
 from config import TOKEN
 from files import get_file, save_file
 from botInterface import Payload, payload_manage
+from tasks import check_tasks
 
 # needs to have access to everything that could possibly be pickled
 from players import *
@@ -86,6 +88,20 @@ def get_entity_obj(entity_display, target_xy):
     return target_entity
 
 
+# * BG TASKS * # 
+
+# checks all tasks every x amount of time
+async def task_check_loop():
+    await bot.wait_until_ready()
+    while not bot.is_closed():
+        output = check_tasks()
+        # in seconds, determine how long between checks
+        await asyncio.sleep(10)
+
+
+# * COMMANDS * #
+
+
 @bot.command()
 async def ability_help(ctx, entity_display, target_xy, ability):
     """Sends a help display for an ability of a given entity
@@ -98,7 +114,7 @@ async def ability_help(ctx, entity_display, target_xy, ability):
     ability_method = getattr(target, 'A_' + ability)
     arg_count = ability_method.__code__.co_argcount
     arguments = str(ability_method.__code__.co_varnames[1:arg_count])
-    messages = [str(ability_method.__name__)[2:] + '-- Arguments: ' + arguments,
+    messages = [str(ability_method.__name__)[2:] + '- Arguments: ' + arguments,
                 str(ability_method.__doc__)]
     print(messages)
     output = payload_manage(Payload(None, messages))
@@ -173,4 +189,6 @@ async def use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
     output = payload_manage(ability_method())
     await ctx.send(output)
 
+
+bot.loop.create_task(task_check_loop())
 bot.run(TOKEN)
