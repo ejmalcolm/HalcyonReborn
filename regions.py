@@ -1,6 +1,7 @@
 from random import choice, random
 from files import save_file, get_file
 from botInterface import Payload
+from players import Player
 
 
 class Region:
@@ -23,6 +24,13 @@ class Region:
         content_list = [str(obj) for obj in self.content.values()]
         messages = prefix + content_list
         return Payload(self, messages)
+
+    def check_vision(self, viewer_uid):
+        '''Checks each entity in region, returns if <viewer_uid> owns any'''
+        for entity in self.content:
+            if entity.owner == viewer_uid:
+                return True
+        return False
 
 
 class Celestial:

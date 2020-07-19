@@ -52,7 +52,7 @@ def error_helper(coro):
         except KeyError as e:
             print(f'KeyError: {e}')
             ctx = args[0]
-            return await ctx.send(f'```ERROR: No match found for the key {e}.```')
+            return await ctx.send(f'```ERROR: No match found for the key {e}.\nLikely, the wrong name was entered.\nCheck spaces and quotes.```')
         except ValueError as e:
             print(f'ValueError: {e}')
             ctx = args[0]
@@ -159,6 +159,12 @@ async def scan_region(ctx, target_xy):
     Regions = get_file('Regions.pickle')
     # translate coords to actual region object
     target_region = Regions[region_string_to_int(target_xy)]
+    # check if the user has vision of that region
+    uid = ctx.message.author.id
+    if not target_region.check_vision(uid):
+        await ctx.send(f'```You do not have vision of {target_region}.```')
+        return
+    # if they do, scan it
     result = target_region.scan()
     output = payload_manage(result)
     await ctx.send(output)
@@ -179,7 +185,7 @@ async def inspect_entity(ctx, entity_display_string, target_xy):
 
 
 @bot.command()
-# @error_helper
+@error_helper
 async def use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
     """Activates a given ability possessed by a given entity
 

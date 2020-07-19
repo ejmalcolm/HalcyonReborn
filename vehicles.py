@@ -132,7 +132,7 @@ class Halcyon(Spaceship):
         def __str__(self):
             return f"A Slingshot Path, linked to {self.linkRegion}"
 
-        def landing_func(self, landing_obj):
+        def on_landing(self, landing_obj):
             # get the distance between each celestial (in millions of miles)
             distance = distance_between(self.xy[0], self.linkRegion.xy[0], self.xy[1], self.linkRegion.xy[1])
             # divide that distance by the slingshot travel rate

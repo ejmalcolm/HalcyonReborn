@@ -1,8 +1,0 @@
-
-ALSO:
-player filtering stuff (some sort of decorator that relies on a common syntax?)
-
-@def player_filter():
-    def wrapper()
-        args[0].author.uid = player
-        if args[1].owner == player # where args[1] is the entity object
