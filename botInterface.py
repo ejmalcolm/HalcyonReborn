@@ -23,7 +23,7 @@ def payload_manage(pload):
     # check if the payload makes a task
     if pload.isTaskMaker:
         # get numbers of minutes since epoch (MSE) right now
-        current_MSE = time() // 60
+        current_MSE = int(time() // 60)
         # add the duration to figure out when to trigger
         trigger_time = current_MSE + (pload.taskDuration * 60)
         # create a Task, rest is handled in tasks.py

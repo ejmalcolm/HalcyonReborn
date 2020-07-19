@@ -27,8 +27,8 @@ def region_string_to_int(region_string):
 
 class Vehicle:
 
-    def __init__(self, owner, xy):
-        self.owner = owner  # the Player object that owns this
+    def __init__(self, owner_uid, xy):
+        self.owner_uid = owner_uid  # the UID of the Player who owns this
         self.xy = xy  # the initial coordinates of this vehicle
         self.id = self.owner.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
         # get all the functions that can be "cast"-- abilities in game terms

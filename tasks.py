@@ -45,7 +45,7 @@ def check_tasks():
                 task_return = t.complete()
                 payloads.append(task_return)
     # then, we create a new tasks dictionary with only the minute yet to come
-    Tasks = {key: value for (key, value) in Tasks.items() if key > current_HSE}
+    Tasks = {key: value for (key, value) in Tasks.items() if key > current_MSE}
     save_file(Tasks, 'Tasks.pickle')
     # send the output to the botCommands background loop
     return payloads
@@ -58,7 +58,7 @@ def return_dummy(a):
 # save_file(empty, 'Tasks.pickle')
 
 
-# current_HSE = time() // 3600
+# current_MSE = int(time() // 60)
 # a = Task(current_HSE, return_dummy, ['current'])
 # b = Task(current_HSE - 5, return_dummy, ['before'])
 # c = Task(current_HSE + 5, return_dummy, ['after'])
