@@ -22,11 +22,10 @@ class Payload:
 def payload_manage(pload):
     # check if the payload makes a task
     if pload.isTaskMaker:
-        # get numbers of hours since epoch (HSE) right now
-        current_HSE = time() // 3600
-        # add the duration to figure out when to 
-        # ! this current implementation means a 1hr duration ability cast at 3:59pm will trigger at 4:00pm ! #
-        trigger_time = current_HSE + pload.taskDuration
+        # get numbers of minutes since epoch (MSE) right now
+        current_MSE = time() // 60
+        # add the duration to figure out when to trigger
+        trigger_time = current_MSE + (pload.taskDuration * 60)
         # create a Task, rest is handled in tasks.py
         Task(trigger_time, pload.onCompleteFunc, pload.onCompleteArgs)
     # * message management and output

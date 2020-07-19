@@ -32,19 +32,19 @@ class Task:
 def check_tasks():
     '''Runs through all tasks and runs then removes the appropriate ones'''
     Tasks = get_file('Tasks.pickle')
-    current_HSE = int(time() / 3600)
-    print(f'CURRENT TIME: {current_HSE}')
+    current_MSE = int(time() / 60)
+    print(f'CURRENT TIME: {current_MSE}')
     print(f'TASKS BEFORE: {Tasks}')
     payloads = []
-    # check every hour that currently has tasks on it
+    # check every minute that currently has tasks on it
     for key in Tasks:
-        # if that hour is before/equal to the current hour
-        if key <= current_HSE:
-            # complete all tasks under that hour
+        # if that minute is before/equal to the current minute
+        if key <= current_MSE:
+            # complete all tasks under that minute
             for t in Tasks[key]:
                 task_return = t.complete()
                 payloads.append(task_return)
-    # then, we create a new tasks dictionary with only the hours yet to come
+    # then, we create a new tasks dictionary with only the minute yet to come
     Tasks = {key: value for (key, value) in Tasks.items() if key > current_HSE}
     save_file(Tasks, 'Tasks.pickle')
     # send the output to the botCommands background loop
