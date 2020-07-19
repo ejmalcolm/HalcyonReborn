@@ -1,4 +1,5 @@
 from regions import Region, Celestial
+from players import Player
 
 from botInterface import Payload
 
@@ -27,10 +28,10 @@ def region_string_to_int(region_string):
 
 class Vehicle:
 
-    def __init__(self, owner_uid, xy):
-        self.owner_uid = owner_uid  # the UID of the Player who owns this
+    def __init__(self, owner, xy):
+        self.owner = owner  # the Player object who owns this
         self.xy = xy  # the initial coordinates of this vehicle
-        self.id = self.owner.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
+        self.id = self.owner.name.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
         # get all the functions that can be "cast"-- abilities in game terms
         self.abilities = [f[2:] for f in dir(type(self)) if f.startswith('A_')]
         # store self into Regions.pickle
@@ -67,6 +68,9 @@ class Spaceship(Vehicle):
     def __init__(self, owner, xy, speed_space=1):
         self.speed_space = speed_space
         super().__init__(owner, xy)
+    
+    def __str__(self):
+        return f'{self.owner}\'s Spaceship'
 
     def A_space_travel(self, adjacent_region_str):
         '''Move to an adjacent region of space
@@ -145,7 +149,10 @@ class Halcyon(Spaceship):
 
 # Region ( (0,0) )
 # Region( (1, 0) )
-# x = Halcyon( 'Storm', (0, 0) )
+# James = Player(155783768307793920, 'James')
+# Evan = Player(155782008826494976, 'Evan')
+# x = Halcyon( James, (0, 0) )
+# y = Spaceship(Evan, (0,0))
 # b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
 # c = b.A_space_travel((25,0))
 # print(c)

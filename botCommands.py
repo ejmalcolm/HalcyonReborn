@@ -69,6 +69,10 @@ def error_helper(coro):
             print(e)
             ctx = args[0]
             return await ctx.send(e)
+        except CommandNotFound as e:
+            print(e)
+            ctx = args[0]
+            return await ctx.send(e)
     return wrapper
 
 

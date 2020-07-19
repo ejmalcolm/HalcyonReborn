@@ -12,6 +12,9 @@ class Player:
         Players[uid] = self
         save_file(Players, 'Players.pickle')
 
+    def __str__(self):
+        return self.name
+
 # save_file({}, 'Players.pickle')
 # Player(77, 'Breq')
 # Players = get_file('Players.pickle')

@@ -27,8 +27,15 @@ class Region:
 
     def check_vision(self, viewer_uid):
         '''Checks each entity in region, returns if <viewer_uid> owns any'''
-        for entity in self.content:
-            if entity.owner == viewer_uid:
+        Players = get_file('Players.pickle')
+        try:
+            viewer = Players[viewer_uid]
+        except KeyError as e:
+            # generally if that player object hasn't been created
+            print(f'check_vision KeyError {e}')
+            return False
+        for entity in self.content.values():
+            if entity.owner.uid == viewer.uid:
                 return True
         return False
 
