@@ -5,7 +5,7 @@ import asyncio
 
 from config import TOKEN
 from files import get_file, save_file
-from botInterface import Payload, payload_manage
+from botInterface import Payload, payload_manage, region_string_to_int, entity_display_to_id
 from tasks import Task, check_tasks
 
 # needs to have access to everything that could possibly be pickled
@@ -15,33 +15,6 @@ from vehicles import *
 
 client = discord.Client()
 bot = commands.Bot(command_prefix='~')
-
-
-def region_string_to_int(region_string):
-    """Converts a string '(x, y)' to a tuple (x, y)"""
-    splitforms = region_string.split(',')
-    nospaces = [x.replace(' ', '') for x in splitforms]
-    noparens = [x.replace('(', '') for x in nospaces]
-    noparens2 = [x.replace(')', '') for x in noparens]
-    asints = [int(x) for x in noparens2]
-    return (asints[0], asints[1])
-
-
-def entity_display_to_id(entity_display):
-    """Converts an entity's display name to its internal ID"""
-    # * entity display will be in the form "Owners's Entity | "
-    # * we need it to be in the form OWNERentity
-    # first, we strip it into two words
-    try:
-        owner, entity = entity_display.split()
-    except ValueError:  # unless it's already one word
-        return entity_display
-    # for owner, we remove the 's and uppercase it
-    owner = owner[:-2].upper()
-    # for entity, we just lowercase it
-    entity = entity.lower()
-    # then for the return we just combine the two
-    return owner + entity
 
 
 def error_helper(coro):
@@ -108,6 +81,12 @@ async def task_check_loop():
             await channel.send(output)
         # in seconds, determine how long between checks
         await asyncio.sleep(5)
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.errors.MissingRequiredArgument):
+        await ctx.send(f'```An argument is missing: {error}```')
+    return
 
 
 # * COMMANDS * #

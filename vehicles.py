@@ -1,7 +1,7 @@
 from regions import Region, Celestial
 from players import Player
 
-from botInterface import Payload
+from botInterface import Payload, region_string_to_int
 
 from files import get_file, save_file
 
@@ -14,16 +14,6 @@ from math import sqrt
 def distance_between(x1, x2, y1, y2):
     distance = sqrt(((x1 - x2)**2) + ((y1 - y2)**2))
     return distance
-
-# ! duplicate from botCommands, move both to botInterface? ! #
-def region_string_to_int(region_string):
-    """Converts a string '(x, y)' to a tuple (x, y)"""
-    splitforms = region_string.split(',')
-    nospaces = [x.replace(' ', '') for x in splitforms]
-    noparens = [x.replace('(', '') for x in nospaces]
-    noparens2 = [x.replace(')', '') for x in noparens]
-    asints = [int(x) for x in noparens2]
-    return (asints[0], asints[1])
 
 
 class Vehicle:
@@ -65,17 +55,18 @@ class Spaceship(Vehicle):
     speed_space -- Speed in space, in millions km/hr
     '''
 
-    def __init__(self, owner, xy, speed_space=1):
+    def __init__(self, owner, xy, speed_space=1, speed_landing=1):
         self.speed_space = speed_space
+        self.speed_landing = speed_landing
         super().__init__(owner, xy)
-    
+
     def __str__(self):
         return f'{self.owner}\'s Spaceship'
 
-    def A_space_travel(self, adjacent_region_str):
+    def A_move_region(self, adjacent_region):
         '''Move to an adjacent region of space
 
-        adjacent_region_xy -- (x,y) coordinates of an adjacent region'''
+        adjacent_region -- (x,y) coordinates of an adjacent region'''
         # get the two region objects
         Regions = get_file('Regions.pickle')
         r1 = Regions[self.xy]
@@ -92,6 +83,23 @@ class Spaceship(Vehicle):
                        taskDuration=duration,
                        onCompleteFunc=self.change_region,
                        onCompleteArgs=[adjacent_region_tup])
+
+    def A_land_on(self, target_celestial, target_territory):
+        '''Land on any celestial body capable of hosting a ship
+
+        target_celestial -- The celestial to land on. Must be in the same region
+        target_territory -- The territory the ship should land in
+        (Territories can be viewed by ~inspect_entity <landing_target>'''
+        duration = self.speed_landing
+        # Get the landing_target object
+        Regions = get_file('Regions.pickle')
+        landing_target = Regions[self.xy].content[target_celestial]
+        messages = [f'{self} is now preparing to land on {landing_target}.',
+                    f'It will arrive in {duration} hours.']
+        return Payload(self, messages, isTaskMaker=True,
+                       taskDuration=duration,
+                       onCompleteFunc=landing_target.on_land,
+                       onCompleteArgs=[self, target_territory])
 
 
 class Halcyon(Spaceship):
@@ -150,9 +158,9 @@ class Halcyon(Spaceship):
 # Region ( (0,0) )
 # Region( (1, 0) )
 # James = Player(155783768307793920, 'James')
-# Evan = Player(155782008826494976, 'Evan')
 # x = Halcyon( James, (0, 0) )
-# y = Spaceship(Evan, (0,0))
+# EmHead = Player(155782008826494976, 'Em-Head')
+# y = Halcyon (EmHead, (0,0))
 # b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
 # c = b.A_space_travel((25,0))
 # print(c)

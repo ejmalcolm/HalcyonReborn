@@ -64,30 +64,30 @@ class Planet(Celestial):
 
     def __init__(self, name, xy):
         super().__init__(name, xy)
-        self.octants = self.gen_octants()
+        self.territories = self.gen_territories()
 
-    def gen_octants(self):
-        OCTANT_LABELS = ('North', 'Northeast', 'East', 'Southeast',
-                         'South', 'Southwest', 'West', 'Northwest')
-        # this is the part that randomly assigns the biomes to octants
-        octants = {}
-        for lab in OCTANT_LABELS:
-            # create an Octant object (with random biomes) and append it
-            octants[lab] = Octant(self, lab)
-        return octants
+    def gen_territories(self):
+        TERRITORY_LABELS = ('North', 'Northeast', 'East', 'Southeast',
+                            'South', 'Southwest', 'West', 'Northwest')
+        # this is the part that randomly assigns the biomes to territories
+        territories = {}
+        for lab in TERRITORY_LABELS:
+            # create an Territory object (with random biomes) and append it
+            territories[lab] = Territory(self, lab)
+        return territories
 
 
-class Octant:
+class Territory:
 
     # TODO | UNIQUES: do later
     # TODO | special case for NONE: polar, desert, wastes
 
     def __init__(self, parent, label, has_biomes=True):
-        self.parent = parent  # the object the octant is attached to
-        self.label = label  # the reference label of the octant
+        self.parent = parent  # the object the territory is attached to
+        self.label = label  # the reference label of the territory
         self.description = ''
         self.has_biomes = has_biomes
-        # now, we randomly select what resources this octant will have
+        # now, we randomly select what resources this territory will have
         self.resources = {}
         RESOURCE_BIOMES = {'Wood': ('Forest', 'Jungle', 'Taiga'),
                            'Stone': ('Hill', 'Steppe', 'Mountain'),
