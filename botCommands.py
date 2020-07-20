@@ -65,6 +65,12 @@ def get_entity_obj(entity_display, target_xy):
     return target_entity
 
 
+def get_help(command_str):
+    callback = globals()[command_str]
+    print()
+    return callback.__doc__
+
+
 # * BG TASKS * #
 
 
@@ -85,8 +91,14 @@ async def task_check_loop():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.MissingRequiredArgument):
-        await ctx.send(f'```An argument is missing: {error}```')
-    return
+        command = ctx.command
+        func = command.callback
+        args = func.__code__.co_varnames
+        messages = [f'Improper usage or missing arguments for {command}.',
+                    f'{command.__code__.co_varnames}']
+        output = payload_manage(Payload(None, messages))
+        await ctx.send(output)
+        return
 
 
 # * COMMANDS * #
@@ -106,9 +118,7 @@ async def ability_help(ctx, entity_display, target_xy, ability):
     arguments = str(ability_method.__code__.co_varnames[1:arg_count])
     messages = [str(ability_method.__name__)[2:] + '- Arguments: ' + arguments,
                 str(ability_method.__doc__)]
-    print(messages)
     output = payload_manage(Payload(None, messages))
-    print(output)
     await ctx.send(output)
 
 
@@ -155,10 +165,10 @@ async def scan_region(ctx, target_xy):
 
 @bot.command()
 @error_helper
-async def inspect_entity(ctx, entity_display_string, target_xy):
+async def inspect_entity(ctx, entity_name, target_xy):
     """Provides details about a given entity
 
-    entity_display_string -- The display name of the target entity
+    entity_name -- The display name of the target entity
     target_xy -- The (x,y) coordinates of the region containing the target"""
     # get the obj we want
     target = get_entity_obj(entity_display_string, target_xy)
@@ -174,7 +184,7 @@ async def use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
 
     caster_entity_name -- The entity who's ability you wish to use
     caster_xy -- The (x,y) coordinates of the region containing the caster
-    ability -- The name of the ability you want to use (shown by ~inspect)
+    ability -- The name of the ability you want to use (shown by ~inspect_entity)
     *args -- Any arguments needed for the ability
     """
     # get the entity object

@@ -71,7 +71,7 @@ class Spaceship(Vehicle):
         Regions = get_file('Regions.pickle')
         r1 = Regions[self.xy]
         # this is a user-facing ability, so adjacent_region_str is a string
-        adjacent_region_tup = region_string_to_int(adjacent_region_str)
+        adjacent_region_tup = region_string_to_int(adjacent_region)
         r2 = Regions[adjacent_region_tup]
         # calculate the distance between the two regions
         distance = distance_between(r1.xy[0], r2.xy[0], r1.xy[1], r2.xy[1])
@@ -159,8 +159,8 @@ class Halcyon(Spaceship):
 # Region( (1, 0) )
 # James = Player(155783768307793920, 'James')
 # x = Halcyon( James, (0, 0) )
-# EmHead = Player(155782008826494976, 'Em-Head')
-# y = Halcyon (EmHead, (0,0))
+# Evan = Player(155782008826494976, 'Evan')
+# y = Halcyon (Evan, (0,0))
 # b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
 # c = b.A_space_travel((25,0))
 # print(c)
