@@ -86,16 +86,15 @@ async def task_check_loop():
             output = payload_manage(p)
             await channel.send(output)
         # in seconds, determine how long between checks
-        await asyncio.sleep(5)
+        await asyncio.sleep(300)
 
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.MissingRequiredArgument):
         command = ctx.command
-        func = command.callback
-        args = func.__code__.co_varnames
+        signature = command.signature.replace('<', '"').replace('>', '"')
         messages = [f'Improper usage or missing arguments for {command}.',
-                    f'{command.__code__.co_varnames}']
+                    f'{command.name} {signature}']
         output = payload_manage(Payload(None, messages))
         await ctx.send(output)
         return
