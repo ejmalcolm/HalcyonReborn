@@ -93,6 +93,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.MissingRequiredArgument):
         command = ctx.command
         func = command.callback
+        #AHHHHHHHHHHHHHHHHHHHHHH
         args = func.__code__.co_varnames
         messages = [f'Improper usage or missing arguments for {command}.',
                     f'{command.__code__.co_varnames}']
