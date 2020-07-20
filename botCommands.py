@@ -14,8 +14,7 @@ from regions import *
 from vehicles import *
 
 client = discord.Client()
-bot = commands.Bot(command_prefix='~')
-
+bot = commands.Bot(command_prefix='~', case_insensitive=True)
 
 def error_helper(coro):
     @functools.wraps(coro)
@@ -65,12 +64,6 @@ def get_entity_obj(entity_display, target_xy):
     return target_entity
 
 
-def get_help(command_str):
-    callback = globals()[command_str]
-    print()
-    return callback.__doc__
-
-
 # * BG TASKS * #
 
 
@@ -86,17 +79,28 @@ async def task_check_loop():
             output = payload_manage(p)
             await channel.send(output)
         # in seconds, determine how long between checks
-        await asyncio.sleep(5)
+        await asyncio.sleep(300)
 
 @bot.event
 async def on_command_error(ctx, error):
+    '''Manages error messages'''
     if isinstance(error, commands.errors.MissingRequiredArgument):
         command = ctx.command
-        func = command.callback
-        #AHHHHHHHHHHHHHHHHHHHHHH
-        args = func.__code__.co_varnames
+        signature = command.signature.replace('<', '"').replace('>', '"')
         messages = [f'Improper usage or missing arguments for {command}.',
-                    f'{command.__code__.co_varnames}']
+                    f'{command.name} {signature}']
+        output = payload_manage(Payload(None, messages))
+        await ctx.send(output)
+        return
+    if isinstance(error, commands.errors.CommandNotFound):
+        attempt = ctx.message.content[1:]
+        all_commands = bot.all_commands
+        possible_commands = [c for c in all_commands if attempt in c]
+        messages = [f'The command "{attempt}" does not exist']
+        if possible_commands:
+            messages.append(f'Did you mean: {possible_commands}?')
+        else:
+            messages.append(f'No commands contain "{attempt}".')
         output = payload_manage(Payload(None, messages))
         await ctx.send(output)
         return
@@ -145,7 +149,6 @@ async def register_player(ctx, player_name):
 
 
 @bot.command()
-@error_helper
 async def scan_region(ctx, target_xy):
     """Returns the contents of the region matching the given coordinates
 
@@ -165,7 +168,6 @@ async def scan_region(ctx, target_xy):
 
 
 @bot.command()
-@error_helper
 async def inspect_entity(ctx, entity_name, target_xy):
     """Provides details about a given entity
 
@@ -179,7 +181,6 @@ async def inspect_entity(ctx, entity_name, target_xy):
 
 
 @bot.command()
-@error_helper
 async def use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
     """Activates a given ability possessed by a given entity
 
