@@ -16,6 +16,7 @@ from vehicles import *
 client = discord.Client()
 bot = commands.Bot(command_prefix='~', case_insensitive=True)
 
+
 def error_helper(coro):
     @functools.wraps(coro)
     async def wrapper(*args, **kwargs):
