@@ -35,23 +35,27 @@ class Region:
             print(f'check_vision KeyError {e}')
             return False
         for entity in self.content.values():
-            if entity.owner.uid == viewer.uid:
-                return True
+            try:
+                if entity.owner.uid == viewer.uid:
+                    return True
+            except AttributeError as e:
+                # generally, because there's an entity with no owner
+                print(e)
         return False
 
 
 class Celestial:
     # any sort of non-actively propelled object in space
 
-    def __init__(self, name, xy):
+    def __init__(self, name, xy, territories=None):
         self.name = name
         self.xy = xy
+        self.territories = territories
         # add self to the region designated by xy
         Regions = get_file('Regions.pickle')
         Regions[xy].content[name] = self
         save_file(Regions, 'Regions.pickle')
         # add self to celestial storage
-        # TODO: add file management here
         Celestials = get_file('Celestials.pickle')
         Celestials[self.name] = self
         save_file(Celestials, 'Celestials.pickle')
@@ -59,12 +63,37 @@ class Celestial:
     def __str__(self):
         return self.name
 
+    def landed_on(self, entity_id, target_territory):
+        '''Function that is called when this celestial is landed on
+
+        entity_id -- The ID of the entity that is lending on this celestial
+        target_territory -- The territory this entity will land'''
+        # * Note that this "sucks in" the landing_entity * #
+        # * Vs. the entity actually landing * #
+        # * The celestial is doing all the work * #
+        Regions = get_file('Regions.pickle')
+        Region = Regions[self.xy]
+        # add the entity to the territory
+        entity_obj = Region.content[entity_id]
+        self.territories[entity_id] = entity_obj
+        # delete the entity from the region
+        del Region.content[entity_id]
+        # return the payload for the landing
+        messages = [f'{entity_obj} has landed on the {target_territory} region of {self}.']
+        return Payload(self, messages)
+
 
 class Planet(Celestial):
 
     def __init__(self, name, xy):
         super().__init__(name, xy)
         self.territories = self.gen_territories()
+
+    def __str__(self):
+        return self.name
+
+    def inspect(self):
+        pass
 
     def gen_territories(self):
         TERRITORY_LABELS = ('North', 'Northeast', 'East', 'Southeast',
@@ -82,9 +111,10 @@ class Territory:
     # TODO | UNIQUES: do later
     # TODO | special case for NONE: polar, desert, wastes
 
-    def __init__(self, parent, label, has_biomes=True):
+    def __init__(self, parent, label, content=None, has_biomes=True):
         self.parent = parent  # the object the territory is attached to
         self.label = label  # the reference label of the territory
+        self.content = content  # what's in this territory
         self.description = ''
         self.has_biomes = has_biomes
         # now, we randomly select what resources this territory will have
@@ -115,10 +145,3 @@ class Territory:
             # remove the extraneous extra space and 'y'
             self.description = self.description[:-1]
             self.description += 's'
-
-
-# Region( (0,0) )
-# Region( (1,0) )
-# print(get_file('Regions.pickle'))
-# Celestial('Sol', (0,0) )
-# Primus = Planet('Primus', (1, 0))

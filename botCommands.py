@@ -82,9 +82,13 @@ async def task_check_loop():
         # in seconds, determine how long between checks
         await asyncio.sleep(300)
 
+
 @bot.event
 async def on_command_error(ctx, error):
     '''Manages error messages'''
+    # This prevents any commands with local handlers being handled here in on_command_error.
+    if hasattr(ctx.command, 'on_error'):
+        return
     if isinstance(error, commands.errors.MissingRequiredArgument):
         command = ctx.command
         signature = command.signature.replace('<', '"').replace('>', '"')
@@ -105,7 +109,8 @@ async def on_command_error(ctx, error):
         output = payload_manage(Payload(None, messages))
         await ctx.send(output)
         return
-
+    print('Ignoring exception in command {}:'.format(ctx.command))
+    print(error)
 
 # * COMMANDS * #
 
@@ -175,7 +180,7 @@ async def inspect_entity(ctx, entity_name, target_xy):
     entity_name -- The display name of the target entity
     target_xy -- The (x,y) coordinates of the region containing the target"""
     # get the obj we want
-    target = get_entity_obj(entity_display_string, target_xy)
+    target = get_entity_obj(entity_name, target_xy)
     # inspect it and send the result to payload manager
     output = payload_manage(target.A_inspect())
     await ctx.send(output)

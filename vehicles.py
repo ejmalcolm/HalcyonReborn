@@ -1,4 +1,4 @@
-from regions import Region, Celestial
+from regions import Region, Celestial, Planet
 from players import Player
 
 from botInterface import Payload, region_string_to_int
@@ -42,7 +42,7 @@ class Vehicle:
         return Payload(self, messages)
 
     def A_inspect(self):
-        '''Returns details describing the current state of this entity'''
+        """Returns details describing the current state of this entity"""
         messages = [f'A {type(self).__name__} belonging to {self.owner}.',
                     f'It is currently in the region {self.xy}',
                     f'It has the following abilities: {self.abilities}']
@@ -50,10 +50,10 @@ class Vehicle:
 
 
 class Spaceship(Vehicle):
-    '''Any vessel capable of spacefaring travel
+    """Any vessel capable of spacefaring travel
 
     speed_space -- Speed in space, in millions km/hr
-    '''
+    """
 
     def __init__(self, owner, xy, speed_space=1, speed_landing=1):
         self.speed_space = speed_space
@@ -64,9 +64,9 @@ class Spaceship(Vehicle):
         return f'{self.owner}\'s Spaceship'
 
     def A_move_region(self, adjacent_region):
-        '''Move to an adjacent region of space
+        """Move to an adjacent region of space
 
-        adjacent_region -- (x,y) coordinates of an adjacent region'''
+        adjacent_region -- (x,y) coordinates of an adjacent region"""
         # get the two region objects
         Regions = get_file('Regions.pickle')
         r1 = Regions[self.xy]
@@ -85,11 +85,11 @@ class Spaceship(Vehicle):
                        onCompleteArgs=[adjacent_region_tup])
 
     def A_land_on(self, target_celestial, target_territory):
-        '''Land on any celestial body capable of hosting a ship
+        """Land on any celestial body capable of hosting a ship
 
-        target_celestial -- The celestial to land on. Must be in the same region
+        target_celestial -- The celestial to land on, must be in same region
         target_territory -- The territory the ship should land in
-        (Territories can be viewed by ~inspect_entity <landing_target>'''
+        (Territories can be viewed by ~inspect_entity <landing_target>"""
         duration = self.speed_landing
         # Get the landing_target object
         Regions = get_file('Regions.pickle')
@@ -98,8 +98,8 @@ class Spaceship(Vehicle):
                     f'It will arrive in {duration} hours.']
         return Payload(self, messages, isTaskMaker=True,
                        taskDuration=duration,
-                       onCompleteFunc=landing_target.on_land,
-                       onCompleteArgs=[self, target_territory])
+                       onCompleteFunc=landing_target.landed_on,
+                       onCompleteArgs=[self.id, target_territory])
 
 
 class Halcyon(Spaceship):
@@ -155,12 +155,11 @@ class Halcyon(Spaceship):
                            onCompleteArgs=self.linkRegion)
 
 
-# Region ( (0,0) )
-# Region( (1, 0) )
-# James = Player(155783768307793920, 'James')
-# x = Halcyon( James, (0, 0) )
+# Region((0, 0))
+# Primus = Planet('Primus', (0, 0))
 # Evan = Player(155782008826494976, 'Evan')
-# y = Halcyon (Evan, (0,0))
+# y = Halcyon(Evan, (0, 0))
+
 # b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
 # c = b.A_space_travel((25,0))
 # print(c)
