@@ -188,17 +188,37 @@ async def inspect_entity(ctx, entity_name, target_xy):
 
 
 @bot.command()
-async def ability_gui(ctx, entity_name, target_xy):
+async def ability_gui(ctx, entity_name, caster_xy):
     # get the obj we want
-    target = get_entity_obj(entity_name, target_xy)
-    ability_dict = {i: target.abilities[i] for i in range(0, len(target.abilities))}
+    caster = get_entity_obj(entity_name, caster_xy)
+    ability_dict = {i: caster.abilities[i] for i in range(0, len(caster.abilities))}
     text = f'```Abilities: {ability_dict}.\nSelect the ability number you wish to cast.```'
-    msg = await ctx.send(text)
+    abilitygui = await ctx.send(text)
     emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
-    for emo in emojis[:len(target.abilities)]:
+    for emo in emojis[:len(caster.abilities)]:
         # send as many emojis as there are abilities
-        await msg.add_reaction(emo)
-    # wait_for
+        await abilitygui.add_reaction(emo)
+
+    def check(reaction, user):
+        # check that message being reacted to is abilitygui
+        # check that the reactor is not the bot itself
+        return abilitygui.id == reaction.message.id and not user == abilitygui.author
+
+    try:
+        reaction, user = await bot.wait_for('reaction_add', check=check, timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.send('```AbilityGUI has timed out. Re-type the command to re-activate.```')
+        return
+
+    # translate the reaction into the string of the method
+    ability = ability_dict[emojis.index(reaction.emoji)]
+    # get the method linked to the ability
+    ability_method = getattr(caster, 'A_' + ability)
+    # call the method
+    # ! NEED TO ADD ARGS ! #
+    output = payload_manage(ability_method(*args))
+    await ctx.send(output)
+
 
 
 @bot.command()
