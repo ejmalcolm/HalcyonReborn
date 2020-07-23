@@ -41,7 +41,7 @@ class Vehicle:
         messages = [f'{self} has arrived in {new_region_xy}']
         return Payload(self, messages)
 
-    def A_inspect(self):
+    def inspect(self):
         """Returns details describing the current state of this entity"""
         messages = [f'A {type(self).__name__} belonging to {self.owner}.',
                     f'It is currently in the region {self.xy}',

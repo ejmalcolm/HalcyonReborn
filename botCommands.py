@@ -112,6 +112,7 @@ async def on_command_error(ctx, error):
     print('Ignoring exception in command {}:'.format(ctx.command))
     print(error)
 
+
 # * COMMANDS * #
 
 
@@ -182,8 +183,22 @@ async def inspect_entity(ctx, entity_name, target_xy):
     # get the obj we want
     target = get_entity_obj(entity_name, target_xy)
     # inspect it and send the result to payload manager
-    output = payload_manage(target.A_inspect())
+    output = payload_manage(target.inspect())
     await ctx.send(output)
+
+
+@bot.command()
+async def ability_gui(ctx, entity_name, target_xy):
+    # get the obj we want
+    target = get_entity_obj(entity_name, target_xy)
+    ability_dict = {i: target.abilities[i] for i in range(0, len(target.abilities))}
+    text = f'```Abilities: {ability_dict}.\nSelect the ability number you wish to cast.```'
+    msg = await ctx.send(text)
+    emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+    for emo in emojis[:len(target.abilities)]:
+        # send as many emojis as there are abilities
+        await msg.add_reaction(emo)
+    # wait_for
 
 
 @bot.command()

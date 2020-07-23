@@ -75,9 +75,11 @@ class Celestial:
         Region = Regions[self.xy]
         # add the entity to the territory
         entity_obj = Region.content[entity_id]
-        self.territories[entity_id] = entity_obj
+        territory_obj = self.territories[target_territory]
+        territory_obj.content[entity_id] = entity_obj
         # delete the entity from the region
         del Region.content[entity_id]
+        save_file(Regions, 'Regions.pickle')
         # return the payload for the landing
         messages = [f'{entity_obj} has landed on the {target_territory} region of {self}.']
         return Payload(self, messages)
@@ -93,7 +95,9 @@ class Planet(Celestial):
         return self.name
 
     def inspect(self):
-        pass
+        messages = [f'The planet {self.name}, located in {self.xy}.',
+                    f'Contains the territories {self.territories}.']
+        return Payload(self, messages)
 
     def gen_territories(self):
         TERRITORY_LABELS = ('North', 'Northeast', 'East', 'Southeast',
@@ -111,10 +115,10 @@ class Territory:
     # TODO | UNIQUES: do later
     # TODO | special case for NONE: polar, desert, wastes
 
-    def __init__(self, parent, label, content=None, has_biomes=True):
+    def __init__(self, parent, label, content={}, has_biomes=True):
         self.parent = parent  # the object the territory is attached to
         self.label = label  # the reference label of the territory
-        self.content = content  # what's in this territory
+        self.content = {}  # what's in this territory
         self.description = ''
         self.has_biomes = has_biomes
         # now, we randomly select what resources this territory will have
