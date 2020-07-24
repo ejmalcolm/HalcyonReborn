@@ -48,14 +48,20 @@ class Payload:
 
 
 def payload_manage(pload):
-    # check if the payload makes a task
     if pload.isTaskMaker:
+        # check if the payload makes a task
+        if pload.source.busy:
+            # check if the entity is busy
+            # ? set some sort of "activetask" attribute for entities ? #
+            return f'```{pload.source} is busy. Use ~cancel_task "entity_name" "entity_xy" to cancel the task.```'
+        # else, set the source to busy
+        pload.source.busy = True
         # get numbers of minutes since epoch (MSE) right now
         current_MSE = int(time() // 60)
         # add the duration to figure out when to trigger
         trigger_time = current_MSE + (pload.taskDuration * 60)
         # create a Task, rest is handled in tasks.py
-        Task(trigger_time, pload.onCompleteFunc, pload.onCompleteArgs)
+        Task(pload.source, trigger_time, pload.onCompleteFunc, pload.onCompleteArgs)
     # * message management and output
     # We unpack the messages into a single string:
     bot_message = '```'  # send it as a code block

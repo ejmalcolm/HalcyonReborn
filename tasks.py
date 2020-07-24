@@ -10,7 +10,8 @@ class Task:
     trigger_func -- The function to be called when the task triggers
     trigger_args -- any args the function needs"""
 
-    def __init__(self, trigger_hour, trigger_func, trigger_args):
+    def __init__(self, source, trigger_hour, trigger_func, trigger_args):
+        self.source = source
         self.trigger_hour = int(trigger_hour)
         self.trigger_func = trigger_func
         self.trigger_args = trigger_args
@@ -23,14 +24,16 @@ class Task:
             # if not, make a new list with self
             Tasks[self.trigger_hour] = [self]
         save_file(Tasks, 'Tasks.pickle')
-    
+
     def complete(self):
         """ Calls the task's associated trigger_func """
+        # set the task user to not busy anymore
+        self.source.busy = False
         return self.trigger_func(*self.trigger_args)
 
 
 def check_tasks():
-    '''Runs through all tasks and runs then removes the appropriate ones'''
+    """Runs through all tasks and runs then removes the appropriate ones"""
     Tasks = get_file('Tasks.pickle')
     current_MSE = int(time() / 60)
     print(f'CURRENT TIME: {current_MSE}')

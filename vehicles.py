@@ -18,9 +18,10 @@ def distance_between(x1, x2, y1, y2):
 
 class Vehicle:
 
-    def __init__(self, owner, xy):
+    def __init__(self, owner, xy, busy=False):
         self.owner = owner  # the Player object who owns this
         self.xy = xy  # the initial coordinates of this vehicle
+        self.busy = busy  # If the vehicle is doing something
         self.id = self.owner.name.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
         # get all the functions that can be "cast"-- abilities in game terms
         self.abilities = [f[2:] for f in dir(type(self)) if f.startswith('A_')]
@@ -156,7 +157,7 @@ class Halcyon(Spaceship):
 
 
 # Region((0, 0))
-# Region((1,0))
+# Region((1, 0))
 # Primus = Planet('Primus', (0, 0))
 # Evan = Player(155782008826494976, 'Evan')
 # James = Player(155783768307793920, 'James')
@@ -165,7 +166,7 @@ class Halcyon(Spaceship):
 # y = Halcyon(Evan, (0, 0))
 # x = Halcyon(James, (0, 0))
 # z = Halcyon(Eriq, (0, 0))
-# a = Halcyon(Emily, (0, 0) )
+# a = Halcyon(Emily, (0, 0))
 
 # b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
 # c = b.A_space_travel((25,0))
