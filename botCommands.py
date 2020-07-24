@@ -2,6 +2,7 @@ import discord
 from discord.ext import tasks, commands
 import functools
 import asyncio
+import inspect
 
 from config import TOKEN
 from files import get_file, save_file
@@ -120,6 +121,8 @@ async def on_command_error(ctx, error):
 async def ability_help(ctx, entity_display, target_xy, ability):
     """Sends a help display for an ability of a given entity
 
+    EXAMPLE: ~ability_help "Evan's Halcyon" (0,0) move_region
+
     entity_display -- The display name of the target, e.g. "Breq's Halcyon" \n
     target_xy -- The (x,y) coordinates of the target \n
     ability -- The ability name to display help for (shown by ~inspect)
@@ -137,6 +140,8 @@ async def ability_help(ctx, entity_display, target_xy, ability):
 @bot.command()
 async def register_player(ctx, player_name):
     """Registers a Discord user under the given player_name.
+
+    EXAMPLE: ~register_player Evan
 
     player_name -- The player name to register the Discord user under.
     """
@@ -157,7 +162,12 @@ async def register_player(ctx, player_name):
 
 @bot.command()
 async def scan_region(ctx, target_xy):
-    """Returns the contents of the region matching the given coordinates
+    """Returns the contents of the given region (x,y).
+
+    You must have vision of the target region.
+    Vision is typically granted by possessing a unit in that region.
+
+    EXAMPLE: ~scan_region (0,0)
 
     target_xy -- The (x,y) coordinates of the region to scan"""
     Regions = get_file('Regions.pickle')
@@ -178,6 +188,8 @@ async def scan_region(ctx, target_xy):
 async def inspect_entity(ctx, entity_name, target_xy):
     """Provides details about a given entity
 
+    EXAMPLE: ~inspect_entity "Evan's Halcyon" 0,0
+
     entity_name -- The display name of the target entity
     target_xy -- The (x,y) coordinates of the region containing the target"""
     # get the obj we want
@@ -188,9 +200,18 @@ async def inspect_entity(ctx, entity_name, target_xy):
 
 
 @bot.command()
-async def ability_gui(ctx, entity_name, caster_xy):
+async def use_ability(ctx, caster_name, caster_xy):
+    """Uses an ability of a given entity in a given region.
+
+    Activates a user interface that displays all of the casters abilities in an interactive format.
+
+    EXAMPLE: use_ability "Evan's Halcyon" 0,0
+
+    caster_entity_name -- The entity whose ability you wish to use
+    caster_xy -- The (x,y) coordinates of the region containing the caster"""
+
     # get the obj we want
-    caster = get_entity_obj(entity_name, caster_xy)
+    caster = get_entity_obj(caster_name, caster_xy)
     ability_dict = {i: caster.abilities[i] for i in range(0, len(caster.abilities))}
     text = f'```Abilities: {ability_dict}.\nSelect the ability number you wish to cast.```'
     abilitygui = await ctx.send(text)
@@ -214,18 +235,37 @@ async def ability_gui(ctx, entity_name, caster_xy):
     ability = ability_dict[emojis.index(reaction.emoji)]
     # get the method linked to the ability
     ability_method = getattr(caster, 'A_' + ability)
-    # call the method
-    # ! NEED TO ADD ARGS ! #
+    # get the arguments to still ask
+    requested_args = inspect.getfullargspec(ability_method).args[1:]
+    # ask for the args and wait for response
+    await ctx.send(f'```Please enter the arguments: {requested_args}\nDo NOT use a tilde (~).\nSeparate each argument with spaces and use "quotes".```')
+
+    def check(message):
+        return message.author == ctx.message.author
+
+    try:
+        msg = await bot.wait_for('message', check=check, timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.send('```AbilityGUI has timed out. Re-type the command to re-activate.```')
+        return
+    arg_string1 = msg.content
+    # first, split off the tilde from the name
+    arg_string2 = arg_string1.replace('~', '')
+    # then, split on spaces
+    args = arg_string2.split()
+
+    # then we call the method
     output = payload_manage(ability_method(*args))
     await ctx.send(output)
 
 
-
 @bot.command()
-async def use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
-    """Activates a given ability possessed by a given entity
+async def z_use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
+    """A more difficult but faster method of using abilities. Consider use_ability.
 
-    caster_entity_name -- The entity who's ability you wish to use
+    EXAMPLE: z_use_ability "Evan's Halcyon" 0,0 move_region 1,0
+
+    caster_entity_name -- The entity whose ability you wish to use
     caster_xy -- The (x,y) coordinates of the region containing the caster
     ability -- The name of the ability you want to use (shown by ~inspect_entity)
     *args -- Any arguments needed for the ability

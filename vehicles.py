@@ -156,9 +156,16 @@ class Halcyon(Spaceship):
 
 
 # Region((0, 0))
+# Region((1,0))
 # Primus = Planet('Primus', (0, 0))
 # Evan = Player(155782008826494976, 'Evan')
+# James = Player(155783768307793920, 'James')
+# Eriq = Player(155560259065348097, 'Eriq')
+# Emily = Player(612827918984413256, 'Em-Head')
 # y = Halcyon(Evan, (0, 0))
+# x = Halcyon(James, (0, 0))
+# z = Halcyon(Eriq, (0, 0))
+# a = Halcyon(Emily, (0, 0) )
 
 # b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
 # c = b.A_space_travel((25,0))
