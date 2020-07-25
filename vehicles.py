@@ -1,7 +1,7 @@
-from regions import Region, Celestial, Planet
+from regions import Region, Celestial, Planet, Territory
 from players import Player
 
-from botInterface import Payload, region_string_to_int
+from botInterface import Payload, region_string_to_int, payload_manage
 
 from files import get_file, save_file
 
@@ -16,7 +16,7 @@ def distance_between(x1, x2, y1, y2):
 class Vehicle:
 
     def __init__(self, owner, xy, celestial=None, territory=None, busy=False):
-        self.owner = owner  # the Player object who owns this
+        self.owner = owner  # the Player ID who owns this
         self.xy = xy  # the initial coordinates of this vehicle
         self.celestial = celestial  # what celestial the vehicle is on, if any
         self.territory = territory  # what territory the vehicle is in
@@ -32,7 +32,16 @@ class Vehicle:
     def change_region(self, new_region_xy):
         # remove self from old region
         Regions = get_file('Regions.pickle')
-        del Regions[self.xy].content[self.id]
+        try:
+            del Regions[self.xy].content[self.id]
+        except KeyError:
+            # triggered if the entity is on a celestial
+            # therefore:
+            Territories = get_file('Territories.pickle')
+            # get the Territory ID from the celestial + territory name
+            TID = self.celestial.upper() + self.territory.lower()
+            del Territories[TID].content[self.id]
+            
         # add self to new region
         new_region = Regions[new_region_xy]
         new_region.content[self.id] = self
@@ -105,6 +114,14 @@ class Spaceship(Vehicle):
 
     def A_take_off(self):
         """Takes off from the current celestial into the surrounding region"""
+        duration = self.speed_landing
+        messages = [f'{self} is now preparing to take off from the {self.territory} territory of {self.celestial}',
+                    f'It will arrive in the {self.xy} region in {duration} hours.']
+        return Payload(self, messages, isTaskMaker=True,
+                       taskDuration=duration,
+                       onCompleteFunc=self.change_region,
+                       onCompleteArgs=[self.xy])
+
 
 class Halcyon(Spaceship):
 
@@ -171,7 +188,16 @@ class Halcyon(Spaceship):
 # z = Halcyon(Eriq, (0, 0))
 # a = Halcyon(Emily, (0, 0))
 
+# Celestials = get_file('Celestials.pickle')
+# Primus = Celestials['Primus']
 # Primus.landed_on('EVANhalcyon', 'North')
+
+# Tasks = get_file('Tasks.pickle')
+# for thing in list(Tasks.values()):
+#     thing = thing[0]
+#     a = [thing.trigger_func, thing.trigger_args, thing.source]
+#     for b in a:
+#         print(type(b))
 
 # b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
 # c = b.A_space_travel((25,0))

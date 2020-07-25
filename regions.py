@@ -81,10 +81,10 @@ class Celestial:
         territory_obj = Territories[self.name.upper() + target_territory.lower()]
         # add the entity to the territory
         territory_obj.content[entity_id] = entity_obj
-        save_file(Territories, 'Territories.pickle')
         # set the attributes of the vehicle
-        entity_obj.celestial = self
+        entity_obj.celestial = self.name
         entity_obj.territory = target_territory
+        save_file(Territories, 'Territories.pickle')
         # delete the entity from the region
         del Region.content[entity_id]
         save_file(Regions, 'Regions.pickle')

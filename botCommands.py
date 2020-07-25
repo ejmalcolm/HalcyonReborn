@@ -264,6 +264,7 @@ async def use_ability(ctx, caster_name, caster_xy):
     await ctx.send(output)
     return
 
+
 @bot.command()
 async def z_use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
     """A more difficult but faster method of using abilities. Consider use_ability.

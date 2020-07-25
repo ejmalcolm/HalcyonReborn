@@ -3,7 +3,16 @@ ROADMAP TO MVG:
 
 0.1.0 -- THE PLAYABLE BUILD
 
+- fix the busy sysytem! currently relies on embedding the sourc ein the payload which causes pickling problems
+    - fixable by changing the busy system to the entity function themselves? or maybe have a dedicated busy() function?
+
+- we also have a problem with use_ability: it relies on a unit being in a region, not a territory!
+    - solution: rely on the inherent uniqueness of IDs? still have trouble on the interface end
+    - probably a better solution is to implement multiple possible arguments into use_ability
+
 - be able to launch from a planets surface
+
+- entity superclass
 
 - actors
     - Start with Automatons only

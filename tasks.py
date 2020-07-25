@@ -11,7 +11,7 @@ class Task:
     trigger_args -- any args the function needs"""
 
     def __init__(self, source, trigger_hour, trigger_func, trigger_args):
-        self.source = source
+        # self.source = source
         self.trigger_hour = int(trigger_hour)
         self.trigger_func = trigger_func
         self.trigger_args = trigger_args
