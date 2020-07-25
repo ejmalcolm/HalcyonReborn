@@ -7,9 +7,6 @@ from files import get_file, save_file
 
 from math import sqrt
 
-# TODO: come up with some sort of unique ID system
-# TODO: maybe change all these xy attributes to just giving the Region
-
 
 def distance_between(x1, x2, y1, y2):
     distance = sqrt(((x1 - x2)**2) + ((y1 - y2)**2))
@@ -18,9 +15,11 @@ def distance_between(x1, x2, y1, y2):
 
 class Vehicle:
 
-    def __init__(self, owner, xy, busy=False):
+    def __init__(self, owner, xy, celestial=None, territory=None, busy=False):
         self.owner = owner  # the Player object who owns this
         self.xy = xy  # the initial coordinates of this vehicle
+        self.celestial = celestial  # what celestial the vehicle is on, if any
+        self.territory = territory  # what territory the vehicle is in
         self.busy = busy  # If the vehicle is doing something
         self.id = self.owner.name.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
         # get all the functions that can be "cast"-- abilities in game terms
@@ -167,6 +166,8 @@ class Halcyon(Spaceship):
 # x = Halcyon(James, (0, 0))
 # z = Halcyon(Eriq, (0, 0))
 # a = Halcyon(Emily, (0, 0))
+
+# print(Primus.landed_on('EVANhalcyon', 'North'))
 
 # b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
 # c = b.A_space_travel((25,0))

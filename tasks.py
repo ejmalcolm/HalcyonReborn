@@ -54,19 +54,13 @@ def check_tasks():
     return payloads
 
 
-def return_dummy(a):
-    return a
-
-# empty = {}
-# save_file(empty, 'Tasks.pickle')
-
-
-# current_MSE = int(time() // 60)
-# a = Task(current_HSE, return_dummy, ['current'])
-# b = Task(current_HSE - 5, return_dummy, ['before'])
-# c = Task(current_HSE + 5, return_dummy, ['after'])
-
-# print(get_file('Tasks.pickle'))
-
-# d = check_tasks()
-# print(d)
+def manual_complete_all_tasks():
+    """Automatically completes all tasks in queue, regardless of time"""
+    Tasks = get_file('Tasks.pickle')
+    payloads = []
+    for t in Tasks:
+        task_return = t.complete()
+        payloads.append(task_return)
+    Tasks = {}
+    save_file(Tasks, 'Tasks.pickle')
+    return payloads

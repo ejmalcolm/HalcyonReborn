@@ -1,0 +1,7 @@
+need a way to interact with territories
+
+first off, how do we inspect their contents?
+
+1) ~inspect_entity the planet, then have a Reaction GUI for each region
+2) have ~inspect_entity work on territories?
+3) dedicated command ~inspect_territory

@@ -279,5 +279,11 @@ async def z_use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
     await ctx.send(output)
 
 
+@bot.command()
+async def test(ctx):
+    Territories = get_file('Territories.pickle')
+    print(Territories['PRIMUSnorth'].content)
+
+
 bot.loop.create_task(task_check_loop())
 bot.run(TOKEN)

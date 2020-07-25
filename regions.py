@@ -72,11 +72,19 @@ class Celestial:
         # * Vs. the entity actually landing * #
         # * The celestial is doing all the work * #
         Regions = get_file('Regions.pickle')
+        # get the region object
         Region = Regions[self.xy]
-        # add the entity to the territory
+        # get the entity object from the region dict
         entity_obj = Region.content[entity_id]
-        territory_obj = self.territories[target_territory]
+        # get the territory object from Territories.pickle
+        Territories = get_file('Territories.pickle')
+        territory_obj = Territories[self.name.upper() + target_territory.lower()]
+        # add the entity to the territory
         territory_obj.content[entity_id] = entity_obj
+        save_file(Territories, 'Territories.pickle')
+        # set the attributes of the vehicle
+        entity_obj.celestial = self
+        entity_obj.territory = target_territory
         # delete the entity from the region
         del Region.content[entity_id]
         save_file(Regions, 'Regions.pickle')
@@ -107,7 +115,7 @@ class Planet(Celestial):
         for lab in TERRITORY_LABELS:
             # create an Territory object (with random biomes) and append it
             territories[lab] = Territory(self, lab)
-        return territories
+        return TERRITORY_LABELS
 
 
 class Territory:
@@ -118,6 +126,7 @@ class Territory:
     def __init__(self, parent, label, content={}, has_biomes=True):
         self.parent = parent  # the object the territory is attached to
         self.label = label  # the reference label of the territory
+        self.id = str(parent).upper() + label.lower()
         self.content = {}  # what's in this territory
         self.description = ''
         self.has_biomes = has_biomes
@@ -149,3 +158,7 @@ class Territory:
             # remove the extraneous extra space and 'y'
             self.description = self.description[:-1]
             self.description += 's'
+        # save file management
+        Territories = get_file('Territories.pickle')
+        Territories[self.id] = self
+        save_file(Territories, 'Territories.pickle')
