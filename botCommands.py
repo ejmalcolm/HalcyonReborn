@@ -280,9 +280,20 @@ async def z_use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
 
 
 @bot.command()
-async def test(ctx):
+async def inspect_territory(ctx, planet, territory):
+    """Inspects a given territory of a planet
+
+    EXAMPLE: ~inspect_territory "North" "Earth"
+
+    planet -- The name of the planet
+    territory -- The name of the territory"""
     Territories = get_file('Territories.pickle')
-    print(Territories['PRIMUSnorth'].content)
+    # get the territory ID
+    TID = planet.upper() + territory.lower()
+    territory_obj = Territories[TID]
+    pload = territory_obj.inspect()
+    output = payload_manage(pload)
+    await ctx.send(output)
 
 
 bot.loop.create_task(task_check_loop())

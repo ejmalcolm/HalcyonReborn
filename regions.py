@@ -47,7 +47,7 @@ class Region:
 class Celestial:
     # any sort of non-actively propelled object in space
 
-    def __init__(self, name, xy, territories=None):
+    def __init__(self, name, xy, territories={}):
         self.name = name
         self.xy = xy
         self.territories = territories
@@ -96,26 +96,26 @@ class Celestial:
 class Planet(Celestial):
 
     def __init__(self, name, xy):
-        super().__init__(name, xy)
-        self.territories = self.gen_territories()
+        territories = self.gen_territories(name)
+        super().__init__(name, xy, territories=territories)
 
     def __str__(self):
         return self.name
 
     def inspect(self):
         messages = [f'The planet {self.name}, located in {self.xy}.',
-                    f'Contains the territories {self.territories}.']
+                    f'Contains the territories {list(self.territories.keys())}.']
         return Payload(self, messages)
 
-    def gen_territories(self):
-        TERRITORY_LABELS = ('North', 'Northeast', 'East', 'Southeast',
-                            'South', 'Southwest', 'West', 'Northwest')
+    def gen_territories(self, parent_name):
+        TERRITORY_LABELS = ['North', 'Northeast', 'East', 'Southeast',
+                            'South', 'Southwest', 'West', 'Northwest']
         # this is the part that randomly assigns the biomes to territories
         territories = {}
         for lab in TERRITORY_LABELS:
             # create an Territory object (with random biomes) and append it
-            territories[lab] = Territory(self, lab)
-        return TERRITORY_LABELS
+            territories[lab] = Territory(parent_name, lab)
+        return territories
 
 
 class Territory:
@@ -124,7 +124,7 @@ class Territory:
     # TODO | special case for NONE: polar, desert, wastes
 
     def __init__(self, parent, label, content={}, has_biomes=True):
-        self.parent = parent  # the object the territory is attached to
+        self.parent = parent  # the string ID the territory is attached to
         self.label = label  # the reference label of the territory
         self.id = str(parent).upper() + label.lower()
         self.content = {}  # what's in this territory
@@ -162,3 +162,12 @@ class Territory:
         Territories = get_file('Territories.pickle')
         Territories[self.id] = self
         save_file(Territories, 'Territories.pickle')
+
+    def inspect(self):
+        messages = [f'The {self.label} territory of the celestial {self.parent}.',
+                    f'It is a {self.description} biome.',
+                    f'It currently hosts the following resources: {self.resources}']
+        if self.content:
+            content_list = [str(obj) for obj in self.content.values()]
+            messages.append(f'It currently contains the following entities: {content_list}.')
+        return Payload(self, messages)

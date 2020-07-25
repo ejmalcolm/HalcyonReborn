@@ -44,8 +44,10 @@ class Vehicle:
     def inspect(self):
         """Returns details describing the current state of this entity"""
         messages = [f'A {type(self).__name__} belonging to {self.owner}.',
-                    f'It is currently in the region {self.xy}',
-                    f'It has the following abilities: {self.abilities}']
+                    f'It is currently in the region {self.xy}']
+        if self.celestial:
+            messages.append(f'It is currently on the celestial {self.celestial}, in the territory {self.territory}.')
+        messages.append(f'It has the following abilities: {self.abilities}')
         return Payload(self, messages)
 
 
@@ -167,7 +169,7 @@ class Halcyon(Spaceship):
 # z = Halcyon(Eriq, (0, 0))
 # a = Halcyon(Emily, (0, 0))
 
-# print(Primus.landed_on('EVANhalcyon', 'North'))
+# Primus.landed_on('EVANhalcyon', 'North')
 
 # b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
 # c = b.A_space_travel((25,0))
