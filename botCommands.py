@@ -235,29 +235,34 @@ async def use_ability(ctx, caster_name, caster_xy):
     ability = ability_dict[emojis.index(reaction.emoji)]
     # get the method linked to the ability
     ability_method = getattr(caster, 'A_' + ability)
-    # get the arguments to still ask
+    # get the arguments to ask
     requested_args = inspect.getfullargspec(ability_method).args[1:]
+    # IF there are args
+    if requested_args:
     # ask for the args and wait for response
-    await ctx.send(f'```Please enter the arguments: {requested_args}\nDo NOT use a tilde (~).\nSeparate each argument with spaces and use "quotes".```')
+        await ctx.send(f'```Please enter the arguments: {requested_args}\nDo NOT use a tilde (~).\nSeparate each argument with spaces and use "quotes".```')
 
-    def check(message):
-        return message.author == ctx.message.author
+        def check(message):
+            return message.author == ctx.message.author
 
-    try:
-        msg = await bot.wait_for('message', check=check, timeout=120)
-    except asyncio.TimeoutError:
-        await ctx.send('```AbilityGUI has timed out. Re-type the command to re-activate.```')
+        try:
+            msg = await bot.wait_for('message', check=check, timeout=120)
+        except asyncio.TimeoutError:
+            await ctx.send('```AbilityGUI has timed out. Re-type the command to re-activate.```')
+            return
+        arg_string1 = msg.content
+        # first, split off the tilde from the name
+        arg_string2 = arg_string1.replace('~', '')
+        # then, split on spaces
+        args = arg_string2.split()
+        # then we call the method
+        output = payload_manage(ability_method(*args))
+        await ctx.send(output)
         return
-    arg_string1 = msg.content
-    # first, split off the tilde from the name
-    arg_string2 = arg_string1.replace('~', '')
-    # then, split on spaces
-    args = arg_string2.split()
-
-    # then we call the method
-    output = payload_manage(ability_method(*args))
+    # IF there are no args, we just call it
+    output = payload_manage(ability_method())
     await ctx.send(output)
-
+    return
 
 @bot.command()
 async def z_use_ability(ctx, caster_entity_name, caster_xy, ability, *args):

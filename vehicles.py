@@ -103,6 +103,8 @@ class Spaceship(Vehicle):
                        onCompleteFunc=landing_target.landed_on,
                        onCompleteArgs=[self.id, target_territory])
 
+    def A_take_off(self):
+        """Takes off from the current celestial into the surrounding region"""
 
 class Halcyon(Spaceship):
 
