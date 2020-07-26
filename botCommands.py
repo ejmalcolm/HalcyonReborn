@@ -97,6 +97,16 @@ async def on_command_error(ctx, error):
     # This prevents any commands with local handlers being handled here in on_command_error.
     if hasattr(ctx.command, 'on_error'):
         return
+    if isinstance(error, commands.errors.CommandInvokeError):
+        err_string = str(error)
+        if 'KeyError' in err_string:
+            missing_ID = err_string.split()[-1]
+            messages = [f'A lookup failed when looking under the ID {missing_ID}.',
+                        'You may have mistyped the entity name, or are searching in the wrong region/territory.'
+                        'Try ~scanning the region or territory to make sure the entity is in it.']
+            output = payload_manage(Payload(None, messages))
+            await ctx.send(output)
+            return
     if isinstance(error, commands.errors.MissingRequiredArgument):
         command = ctx.command
         signature = command.signature.replace('<', '"').replace('>', '"')
