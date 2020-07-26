@@ -3,20 +3,19 @@ ROADMAP TO MVG:
 
 0.1.0 -- THE PLAYABLE BUILD
 
-- fix the busy sysytem! currently relies on embedding the sourc ein the payload which causes pickling problems
-    - fixable by changing the busy system to the entity function themselves? or maybe have a dedicated busy() function?
+- fix the busy sysytem!
+    - do it by, as the "source" aspect of the Task() object, putting in a dict that can be broken down to get the source
+    - something like "{EID: 'EVANhalcyon', LocType: 'Region', LocExact: (1,1)}
+    - {EName: 'EVANhalcyon', LocFile: 'Territory', LocExact: 'PRIMUSnorth'}
 
-- we also have a problem with use_ability: it relies on a unit being in a region, not a territory!
-    - solution: rely on the inherent uniqueness of IDs? still have trouble on the interface end
-    - probably a better solution is to implement multiple possible arguments into use_ability
-
-- be able to launch from a planets surface
+- make sure you can only move_region when you're in space
 
 - entity superclass
 
 - actors
     - Start with Automatons only
     - Abilities: move, gather resources, build, enter vehicle
+    - ! PROBLEM: how do we deal with having 2 entities of the same type in the same region/territory
 
 - actor/halcyon interaction
     - Automatons can be produced with a Halcyon ability
@@ -32,4 +31,6 @@ ROADMAP TO MVG:
 - add cogs organizing commands
 - add more interface stuff
     - sub-inspection interfaces, e.g. inspecting Planet opens an interface linked to inspecting Entities
-
+- maybe change landed_on to be on territories, not planets
+- convert everything to the ID system its cool as fuck
+- change the entity_id system

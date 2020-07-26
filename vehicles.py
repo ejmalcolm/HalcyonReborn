@@ -48,7 +48,7 @@ class Vehicle:
         save_file(Regions, 'Regions.pickle')
         # managing output (what the bot should send)
         messages = [f'{self} has arrived in {new_region_xy}']
-        return Payload(self, messages)
+        return Payload(self.get_LID(), messages)
 
     def inspect(self):
         """Returns details describing the current state of this entity"""
@@ -57,7 +57,18 @@ class Vehicle:
         if self.celestial:
             messages.append(f'It is currently on the celestial {self.celestial}, in the territory {self.territory}.')
         messages.append(f'It has the following abilities: {self.abilities}')
-        return Payload(self, messages)
+        return Payload(self.get_LID(), messages)
+
+    def get_LID(self):
+        """Returns the Location ID of this object"""
+        LID = {'EID': self.id}
+        if self.territory:
+            LID['LocFile'] = 'Territories.pickle'
+            LID['LocKey'] = self.celestial.upper() + self.territory.lower()
+        elif self.xy:
+            LID['LocFile'] = 'Regions.pickle'
+            LID['LocKey'] = self.xy
+        return LID
 
 
 class Spaceship(Vehicle):
@@ -90,7 +101,7 @@ class Spaceship(Vehicle):
         duration = distance / self.speed_space
         messages = [f'{self} is now moving towards {r2}.',
                     f'It will arrive in {duration} hours']
-        return Payload(self, messages, isTaskMaker=True,
+        return Payload(self.get_LID(), messages, isTaskMaker=True,
                        taskDuration=duration,
                        onCompleteFunc=self.change_region,
                        onCompleteArgs=[adjacent_region_tup])
@@ -107,7 +118,7 @@ class Spaceship(Vehicle):
         landing_target = Regions[self.xy].content[target_celestial]
         messages = [f'{self} is now preparing to land on {landing_target}.',
                     f'It will arrive in {duration} hours.']
-        return Payload(self, messages, isTaskMaker=True,
+        return Payload(self.get_LID(), messages, isTaskMaker=True,
                        taskDuration=duration,
                        onCompleteFunc=landing_target.landed_on,
                        onCompleteArgs=[self.id, target_territory])
@@ -117,7 +128,7 @@ class Spaceship(Vehicle):
         duration = self.speed_landing
         messages = [f'{self} is now preparing to take off from the {self.territory} territory of {self.celestial}',
                     f'It will arrive in the {self.xy} region in {duration} hours.']
-        return Payload(self, messages, isTaskMaker=True,
+        return Payload(self.get_LID(), messages, isTaskMaker=True,
                        taskDuration=duration,
                        onCompleteFunc=self.change_region,
                        onCompleteArgs=[self.xy])
@@ -142,7 +153,7 @@ class Halcyon(Spaceship):
         except KeyError as e:
             return f"The indicated celestial {e} does not exist"
         # now we send out a Payload object to the bot
-        return Payload(self, ['Hello'], isTaskMaker=True, taskDuration=1,
+        return Payload(self.get_LID(), ['Hello'], isTaskMaker=True, taskDuration=1,
                        onCompleteFunc=self.create_slingshot,
                        onCompleteArgs=[c1, c2])
 
@@ -170,7 +181,7 @@ class Halcyon(Spaceship):
             distance = distance_between(self.xy[0], self.linkRegion.xy[0], self.xy[1], self.linkRegion.xy[1])
             # divide that distance by the slingshot travel rate
             travel_time = distance / 25
-            return Payload(self, ['Hello'], isTaskMaker=True,
+            return Payload(self.get_LID(), ['Hello'], isTaskMaker=True,
                            taskDuration=travel_time,
                            onCompleteFunc=landing_obj.change_region,
                            onCompleteArgs=self.linkRegion)
@@ -188,7 +199,8 @@ class Halcyon(Spaceship):
 # z = Halcyon(Eriq, (0, 0))
 # a = Halcyon(Emily, (0, 0))
 
-# Primus.landed_on('EVANhalcyon', 'North')
+# red = y.A_move_region('(1,0)')
+# payload_manage(red)
 
 # Tasks = get_file('Tasks.pickle')
 # for thing in list(Tasks.values()):

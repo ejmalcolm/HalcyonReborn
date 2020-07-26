@@ -1,5 +1,7 @@
 from time import time
 from tasks import Task
+from files import get_file, save_file
+
 
 # * things that are used to interact with the bot * #
 
@@ -34,9 +36,9 @@ def entity_display_to_id(entity_display):
 class Payload:
     '''onCompleteArgs MUST BE A LIST'''
 
-    def __init__(self, source, messages, isTaskMaker=False,
+    def __init__(self, sourceLID, messages, isTaskMaker=False,
                  taskDuration=None, onCompleteFunc=None, onCompleteArgs=[]):
-        self.source = source
+        self.sourceLID = sourceLID
         self.messages = messages
         self.isTaskMaker = isTaskMaker
         self.taskDuration = taskDuration
@@ -48,20 +50,27 @@ class Payload:
 
 
 def payload_manage(pload):
+    # check if the payload makes a task
     if pload.isTaskMaker:
-        # check if the payload makes a task
-        if pload.source.busy:
+        # get the source object
+        sourceLID = pload.sourceLID
+        sourceFile = sourceLID['LocFile']
+        sourceKey = sourceLID['LocKey']
+        sourceEID = sourceLID['EID']
+        source = get_file(sourceFile)[sourceKey].content[sourceEID]
+        if source.busy:
             # check if the entity is busy
             # ? set some sort of "activetask" attribute for entities ? #
+            # ? we can use that to say what, exactly, they're busy doing ? #
             return f'```{pload.source} is busy. Use ~cancel_task "entity_name" "entity_xy" to cancel the task.```'
         # else, set the source to busy
-        pload.source.busy = True
+        source.busy = True
         # get numbers of minutes since epoch (MSE) right now
         current_MSE = int(time() // 60)
         # add the duration to figure out when to trigger
         trigger_time = current_MSE + (pload.taskDuration * 60)
         # create a Task, rest is handled in tasks.py
-        Task(pload.source, trigger_time, pload.onCompleteFunc, pload.onCompleteArgs)
+        Task(source, trigger_time, pload.onCompleteFunc, pload.onCompleteArgs)
     # * message management and output
     # We unpack the messages into a single string:
     bot_message = '```'  # send it as a code block

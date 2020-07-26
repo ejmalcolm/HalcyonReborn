@@ -10,8 +10,8 @@ class Task:
     trigger_func -- The function to be called when the task triggers
     trigger_args -- any args the function needs"""
 
-    def __init__(self, source, trigger_hour, trigger_func, trigger_args):
-        # self.source = source
+    def __init__(self, sourceLID, trigger_hour, trigger_func, trigger_args):
+        self.sourceLID = sourceLID
         self.trigger_hour = int(trigger_hour)
         self.trigger_func = trigger_func
         self.trigger_args = trigger_args
@@ -28,7 +28,7 @@ class Task:
     def complete(self):
         """ Calls the task's associated trigger_func """
         # set the task user to not busy anymore
-        self.source.busy = False
+        # self.source.busy = False
         return self.trigger_func(*self.trigger_args)
 
 

@@ -50,21 +50,35 @@ def error_helper(coro):
     return wrapper
 
 
-def get_entity_obj(entity_display, target_xy):
+def get_entity_obj(entity_display, target_xy=None, target_territory=None, target_planet=None):
     """Gets a target entity object given a entity_string and a region
 
     entity_display -- The display name of an entity, e.g. "Breq's Halcyon" \n
     target_xy -- The "(x, y)" coordinates of the region containing the entity
+    OR
+    target_territory -- The territory that the entity is in 
+    target_planet -- The planet the entity is in
     """
-    # get the region
-    Regions = get_file('Regions.pickle')
-    target_region = Regions[region_string_to_int(target_xy)]
-    # get the entity's ID
-    entity_id = entity_display_to_id(entity_display)
-    # get the entity object
-    target_entity = target_region.content[entity_id]
-    return target_entity
-
+    if target_xy:
+        # if it's in a region
+        # get the region
+        Regions = get_file('Regions.pickle')
+        target_region = Regions[region_string_to_int(target_xy)]
+        # get the entity's ID
+        entity_id = entity_display_to_id(entity_display)
+        # get the entity object
+        target_entity = target_region.content[entity_id]
+        return target_entity
+    if target_territory:
+        # if it's in the territory
+        Territories = get_file('Territories.pickle')
+        TID = target_planet.upper() + target_territory.lower()
+        target_territory = Territories[TID]
+        # get the entity's ID
+        entity_id = entity_display_to_id(entity_display)
+        # get the entity object
+        target_entity = target_territory.content[entity_id]
+        return target_entity
 
 # * BG TASKS * #
 
@@ -127,7 +141,7 @@ async def ability_help(ctx, entity_display, target_xy, ability):
     target_xy -- The (x,y) coordinates of the target \n
     ability -- The ability name to display help for (shown by ~inspect)
     """
-    target = get_entity_obj(entity_display, target_xy)
+    target = get_entity_obj(entity_display, target_xy=target_xy)
     ability_method = getattr(target, 'A_' + ability)
     arg_count = ability_method.__code__.co_argcount
     arguments = str(ability_method.__code__.co_varnames[1:arg_count])
@@ -193,7 +207,7 @@ async def inspect_entity(ctx, entity_name, target_xy):
     entity_name -- The display name of the target entity
     target_xy -- The (x,y) coordinates of the region containing the target"""
     # get the obj we want
-    target = get_entity_obj(entity_name, target_xy)
+    target = get_entity_obj(entity_name, target_xy=target_xy)
     # inspect it and send the result to payload manager
     output = payload_manage(target.inspect())
     await ctx.send(output)
@@ -203,7 +217,10 @@ async def inspect_entity(ctx, entity_name, target_xy):
 async def use_ability(ctx, *args):
     """Uses an ability of a given entity in a given region.
 
-    Activates a user interface that displays all of the casters abilities in an interactive format.
+    Activates a user interface that displays all of the caster's abilities in an interactive format.
+    You can use ~inspect_entity to a view an entity's abilities.
+    You can use ~ability_help to view what an ability does.
+
 
     EXAMPLE: use_ability "Evan's Halcyon" 0,0
     OR
@@ -221,17 +238,15 @@ async def use_ability(ctx, *args):
         caster_name = args[0]
         caster_xy = args[1]
         # get the obj we want
-        caster = get_entity_obj(caster_name, caster_xy)
+        caster = get_entity_obj(caster_name, target_xy=caster_xy, )
     elif len(args) == 3:
         # if the caster is in a territory
-        Territories = get_file('Territories.pickle')
         caster_name = args[0]
-        TID = args[2].upper() + args[1].lower()
-        EID = entity_display_to_id(caster_name)
-        terr_obj = Territories[TID]
-        caster = terr_obj.content[EID]
+        caster_territory = args[1]
+        caster_planet = args[2]
+        caster = get_entity_obj(caster_name, target_territory=caster_territory, target_planet=caster_planet)
     else:
-        await ctx.send('```Error: Wrong number of arguments.\n ~use_ability "caster_name" "caster_xy" OR ~use_ability "caster_name" "territory_name" "planet_name"')
+        await ctx.send('```Error: Improper number of arguments.\n ~use_ability "caster_name" "caster_xy" OR ~use_ability "caster_name" "territory_name" "planet_name"')
         return
     # get the names of the abilities
     ability_dict = {i: caster.abilities[i] for i in range(0, len(caster.abilities))}
@@ -299,7 +314,7 @@ async def z_use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
     *args -- Any arguments needed for the ability
     """
     # get the entity object
-    caster = get_entity_obj(caster_entity_name, caster_xy)
+    caster = get_entity_obj(caster_entity_name, target_xy=caster_xy)
     # get the method linked to the ability
     ability_method = getattr(caster, 'A_' + ability)
     # call the method
