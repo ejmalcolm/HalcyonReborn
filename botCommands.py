@@ -3,11 +3,12 @@ from discord.ext import tasks, commands
 import functools
 import asyncio
 import inspect
+import traceback
 
 from config import TOKEN
 from files import get_file, save_file
 from botInterface import Payload, payload_manage, region_string_to_int, entity_display_to_id
-from tasks import Task, check_tasks
+from tasks import Task, check_tasks, manual_complete_all_tasks
 
 # needs to have access to everything that could possibly be pickled
 from players import *
@@ -39,14 +40,6 @@ def error_helper(coro):
             print(f'TypeError: {e}')
             ctx = args[0]
             return await ctx.send(f'```{e}```')
-        except commands.errors.MissingRequiredArgument as e:
-            print(e)
-            ctx = args[0]
-            return await ctx.send(e)
-        except CommandNotFound as e:
-            print(e)
-            ctx = args[0]
-            return await ctx.send(e)
     return wrapper
 
 
@@ -124,8 +117,13 @@ async def on_command_error(ctx, error):
         output = payload_manage(Payload(None, messages))
         await ctx.send(output)
         return
+    if isinstance(error, KeyError):
+        messages = f'No result was found when looking up {error}'
+        output = payload_manage(Payload(None, messages))
+        await ctx.send(output)
+        return
     print('Ignoring exception in command {}:'.format(ctx.command))
-    print(error)
+    traceback.print_exception(type(error), error, error.__traceback__)
 
 
 # * COMMANDS * #
@@ -238,7 +236,7 @@ async def use_ability(ctx, *args):
         caster_name = args[0]
         caster_xy = args[1]
         # get the obj we want
-        caster = get_entity_obj(caster_name, target_xy=caster_xy, )
+        caster = get_entity_obj(caster_name, target_xy=caster_xy)
     elif len(args) == 3:
         # if the caster is in a territory
         caster_name = args[0]
@@ -337,6 +335,16 @@ async def inspect_territory(ctx, territory, planet):
     pload = territory_obj.inspect()
     output = payload_manage(pload)
     await ctx.send(output)
+
+
+@bot.command()
+async def manual_complete(ctx):
+    """Automatically completes all tasks"""
+    payloads = manual_complete_all_tasks()
+    channel = bot.get_channel(734116611300261939)
+    for p in payloads:
+        output = payload_manage(p)
+        await channel.send(output)
 
 
 bot.loop.create_task(task_check_loop())

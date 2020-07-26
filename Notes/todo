@@ -3,10 +3,7 @@ ROADMAP TO MVG:
 
 0.1.0 -- THE PLAYABLE BUILD
 
-- fix the busy sysytem!
-    - for some reason it's not stopping new cases from popping
-
-- make sure you can only move_region when you're in space
+- add checks to abilities
 
 - entity superclass
 

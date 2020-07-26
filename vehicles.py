@@ -32,17 +32,18 @@ class Vehicle:
     def change_region(self, new_region_xy):
         # remove self from old region
         Regions = get_file('Regions.pickle')
-        try:
+        if self.id in Regions[self.xy].content:
             del Regions[self.xy].content[self.id]
-        except KeyError:
+        else:
             # triggered if the entity is on a celestial
             # therefore:
             Territories = get_file('Territories.pickle')
             # get the Territory ID from the celestial + territory name
             TID = self.celestial.upper() + self.territory.lower()
             del Territories[TID].content[self.id]
-
+            save_file(Territories, 'Territories.pickle')
         # add self to new region
+        self.xy = new_region_xy
         new_region = Regions[new_region_xy]
         new_region.content[self.id] = self
         save_file(Regions, 'Regions.pickle')
@@ -89,10 +90,14 @@ class Spaceship(Vehicle):
         """Move to an adjacent region of space
 
         adjacent_region -- (x,y) coordinates of an adjacent region"""
+        # check to make sure not on celestial
+        if self.celestial:
+            message = [f'{self} is currently on the celestial {self.celestial}. Use the take_off ability before trying to move regions.']
+            return Payload(self.get_LID(), message)
         # get the two region objects
         Regions = get_file('Regions.pickle')
         r1 = Regions[self.xy]
-        # this is a user-facing ability, so adjacent_region_str is a string
+        # this is a user-facing ability, so adjacent_region is a string
         adjacent_region_tup = region_string_to_int(adjacent_region)
         r2 = Regions[adjacent_region_tup]
         # calculate the distance between the two regions
@@ -106,11 +111,11 @@ class Spaceship(Vehicle):
                        onCompleteFunc=self.change_region,
                        onCompleteArgs=[adjacent_region_tup])
 
-    def A_land_on(self, target_celestial, target_territory):
+    def A_land_on(self, target_territory, target_celestial):
         """Land on any celestial body capable of hosting a ship
 
-        target_celestial -- The celestial to land on, must be in same region
         target_territory -- The territory the ship should land in
+        target_celestial -- The celestial to land on, must be in same region
         (Territories can be viewed by ~inspect_entity <landing_target>"""
         duration = self.speed_landing
         # Get the landing_target object
@@ -198,6 +203,7 @@ class Halcyon(Spaceship):
 # x = Halcyon(James, (0, 0))
 # z = Halcyon(Eriq, (0, 0))
 # a = Halcyon(Emily, (0, 0))
+
 
 # red = y.A_move_region('(1,0)')
 # payload_manage(red)

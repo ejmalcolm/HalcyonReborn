@@ -28,11 +28,15 @@ class Task:
     def complete(self):
         """ Calls the task's associated trigger_func """
         # set the task user to not busy anymore
-        sourceFile = self.sourceLID['LocFile']
-        sourceKey = self.sourceLID['LocKey']
-        sourceEID = self.sourceLID['EID']
-        source = get_file(sourceFile)[sourceKey].content[sourceEID]
+        sourceLID = self.sourceLID
+        sourceFile = sourceLID['LocFile']
+        sourceKey = sourceLID['LocKey']
+        sourceEID = sourceLID['EID']
+        storageDict = get_file(sourceFile)
+        source = storageDict[sourceKey].content[sourceEID]
         source.busy = False
+        save_file(storageDict, sourceFile)
+        # trigger the func
         return self.trigger_func(*self.trigger_args)
 
 
@@ -62,9 +66,10 @@ def manual_complete_all_tasks():
     """Automatically completes all tasks in queue, regardless of time"""
     Tasks = get_file('Tasks.pickle')
     payloads = []
-    for t in Tasks:
-        task_return = t.complete()
-        payloads.append(task_return)
+    for sublist in Tasks.values():
+        for item in sublist:
+            task_return = item.complete()
+            payloads.append(task_return)
     Tasks = {}
     save_file(Tasks, 'Tasks.pickle')
     return payloads

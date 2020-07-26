@@ -57,20 +57,22 @@ def payload_manage(pload):
         sourceFile = sourceLID['LocFile']
         sourceKey = sourceLID['LocKey']
         sourceEID = sourceLID['EID']
-        source = get_file(sourceFile)[sourceKey].content[sourceEID]
+        storageDict = get_file(sourceFile)
+        source = storageDict[sourceKey].content[sourceEID]
         if source.busy:
             # check if the entity is busy
             # ? set some sort of "activetask" attribute for entities ? #
             # ? we can use that to say what, exactly, they're busy doing ? #
-            return f'```{pload.source} is busy. Use ~cancel_task "entity_name" "entity_xy" to cancel the task.```'
+            return f'```{source} is busy. Use ~cancel_task "entity_name" "entity_location" to cancel the task.```'
         # else, set the source to busy
         source.busy = True
+        save_file(storageDict, sourceFile)
         # get numbers of minutes since epoch (MSE) right now
         current_MSE = int(time() // 60)
         # add the duration to figure out when to trigger
         trigger_time = current_MSE + (pload.taskDuration * 60)
         # create a Task, rest is handled in tasks.py
-        Task(source, trigger_time, pload.onCompleteFunc, pload.onCompleteArgs)
+        Task(sourceLID, trigger_time, pload.onCompleteFunc, pload.onCompleteArgs)
     # * message management and output
     # We unpack the messages into a single string:
     bot_message = '```'  # send it as a code block
