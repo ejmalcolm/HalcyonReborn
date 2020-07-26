@@ -106,7 +106,8 @@ async def on_command_error(ctx, error):
                         'Try ~scanning the region or territory to make sure the entity is in it.']
             output = payload_manage(Payload(None, messages))
             await ctx.send(output)
-            return
+        traceback.print_exception(type(error), error, error.__traceback__)
+        return
     if isinstance(error, commands.errors.MissingRequiredArgument):
         command = ctx.command
         signature = command.signature.replace('<', '"').replace('>', '"')

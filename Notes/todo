@@ -1,9 +1,11 @@
 ROADMAP TO MVG:
 
+THINGS THAT CAME UP
+- add checks to abilities
+- evaluate if we actually need self.celestial or we can just have a self.territoryID that works for everything
+
 
 0.1.0 -- THE PLAYABLE BUILD
-
-- add checks to abilities
 
 - entity superclass
 

@@ -58,6 +58,8 @@ def payload_manage(pload):
         sourceKey = sourceLID['LocKey']
         sourceEID = sourceLID['EID']
         storageDict = get_file(sourceFile)
+        print(storageDict)
+        print(storageDict[sourceKey].content)
         source = storageDict[sourceKey].content[sourceEID]
         if source.busy:
             # check if the entity is busy

@@ -40,6 +40,9 @@ class Vehicle:
             Territories = get_file('Territories.pickle')
             # get the Territory ID from the celestial + territory name
             TID = self.celestial.upper() + self.territory.lower()
+            # remove self from the territory and celestial
+            self.territory = None
+            self.celestial = None
             del Territories[TID].content[self.id]
             save_file(Territories, 'Territories.pickle')
         # add self to new region
@@ -204,29 +207,8 @@ class Halcyon(Spaceship):
 # z = Halcyon(Eriq, (0, 0))
 # a = Halcyon(Emily, (0, 0))
 
+# x = get_file('Regions.pickle')
+# print(x)
 
-# red = y.A_move_region('(1,0)')
-# payload_manage(red)
-
-# Tasks = get_file('Tasks.pickle')
-# for thing in list(Tasks.values()):
-#     thing = thing[0]
-#     a = [thing.trigger_func, thing.trigger_args, thing.source]
-#     for b in a:
-#         print(type(b))
-
-# b = get_file('Regions.pickle')[(0,0)].content['BREQhalcyon']
-# c = b.A_space_travel((25,0))
-# print(c)
-# Region( (25, 0 ) )
-# x = Halcyon( 'Breq', (0, 0) )
-# Primus = Celestial( 'Primus', (0, 0) )
-# Secondus = Celestial( 'Secondus', (25, 0) )
-
-# x.create_slingshot(Primus, Secondus)
-
-# Regions = get_file('Regions.pickle')
-# a = Regions[ (0, 0) ].content[ "BREQhalcyon" ].abilities
-# print(a)
-# Regions = get_file('Regions.pickle')
-# print(Regions[(0,0)].content, Regions[ (25,0) ].content)
+# r = x[(0, 0)]
+# print(r.content['JAMEShalcyon'].territory)
