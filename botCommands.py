@@ -2,7 +2,7 @@ import discord
 from discord.ext import tasks, commands
 import functools
 import asyncio
-import inspect
+from inspect import getfullargspec
 import traceback
 
 from config import TOKEN
@@ -43,14 +43,14 @@ def error_helper(coro):
     return wrapper
 
 
-def get_entity_obj(entity_display, target_xy=None, target_territory=None, target_planet=None):
+def get_entity_obj(entity_display, target_xy=None, target_planet=None, target_territory=None,):
     """Gets a target entity object given a entity_string and a region
 
     entity_display -- The display name of an entity, e.g. "Breq's Halcyon" \n
     target_xy -- The "(x, y)" coordinates of the region containing the entity
     OR
-    target_territory -- The territory that the entity is in 
     target_planet -- The planet the entity is in
+    target_territory -- The territory that the entity is in 
     """
     if target_xy:
         # if it's in a region
@@ -208,10 +208,10 @@ async def scan_region(ctx, target_xy):
 
 
 @bot.command()
-async def inspect_entity(ctx, entity_name, target_xy):
+async def inspect(ctx, entity_name, target_xy):
     """Provides details about a given entity
 
-    EXAMPLE: ~inspect_entity "Evan's Halcyon" 0,0
+    EXAMPLE: ~inspect "Evan's Halcyon" 0,0
 
     entity_name -- The display name of the target entity
     target_xy -- The (x,y) coordinates of the region containing the target"""
@@ -222,7 +222,7 @@ async def inspect_entity(ctx, entity_name, target_xy):
     await ctx.send(output)
 
 
-@bot.command(usage='"caster_name" "caster_xy" OR ~use_ability "caster_name" "territory_name" "planet_name"')
+@bot.command(usage='"caster_name" "caster_xy" OR ~use_ability "caster_name" "planet_name" "territory_name"')
 async def use_ability(ctx, *args):
     """Uses an ability of a given entity in a given region.
 
@@ -233,14 +233,14 @@ async def use_ability(ctx, *args):
 
     EXAMPLE: use_ability "Evan's Halcyon" 0,0
     OR
-    EXAMPLE: use_ability "Evan's Halcyon" North Earth
+    EXAMPLE: use_ability "Evan's Halcyon" Earth North
 
     caster_entity_name -- The entity whose ability you wish to use
 
     caster_xy -- The (x,y) coordinates of the region containing the caster
     OR
-    territory_name -- The name of the territory the caster is in
     planet_name -- The name of the planet the caster is on
+    territory_name -- The name of the territory the caster is in
     """
     if len(args) == 2:
         # if the caster is in a region
@@ -251,8 +251,8 @@ async def use_ability(ctx, *args):
     elif len(args) == 3:
         # if the caster is in a territory
         caster_name = args[0]
-        caster_territory = args[1]
-        caster_planet = args[2]
+        caster_planet = args[1]
+        caster_territory = args[2]
         caster = get_entity_obj(caster_name, target_territory=caster_territory, target_planet=caster_planet)
     else:
         await ctx.send('```Error: Improper number of arguments.\n ~use_ability "caster_name" "caster_xy" OR ~use_ability "caster_name" "territory_name" "planet_name"')
@@ -282,11 +282,21 @@ async def use_ability(ctx, *args):
     # get the method linked to the ability
     ability_method = getattr(caster, 'A_' + ability)
     # get the arguments to ask
-    requested_args = inspect.getfullargspec(ability_method).args[1:]
+    requested_args = getfullargspec(ability_method).args[1:]
     # IF there are args
     if requested_args:
         # ask for the args and wait for response
-        await ctx.send(f'```Please enter the arguments: {requested_args}\nDo NOT use a tilde (~).\nSeparate each argument with spaces and use "quotes".```')
+        readable_args = [a.replace('_', ' ') for a in requested_args]
+        if len(readable_args) == 1:
+            request_str = f'Please enter the {readable_args[0]}'
+        else:
+            request_str = f'Please enter the {readable_args[0]}'
+            # second argument to the pentultimate argument
+            for i in range(len(readable_args[1:-1])):
+                request_str += f', the {readable_args[i]}'
+            # add last argument
+            request_str += f' and the {readable_args[-1]}'
+        await ctx.send(f'```{request_str}.\nDo NOT use a tilde (~).\nSeparate each argument with spaces and use "quotes".```')
 
         def check(message):
             return message.author == ctx.message.author
@@ -297,8 +307,9 @@ async def use_ability(ctx, *args):
             await ctx.send('```AbilityGUI has timed out. Re-type the command to re-activate.```')
             return
         arg_string1 = msg.content
-        # first, split off the tilde from the name
+        # first, split off the tilde and commas from the name
         arg_string2 = arg_string1.replace('~', '')
+        arg_string2 = arg_string2.replace(',', '')
         # then, split on spaces
         args = arg_string2.split()
         # then we call the method
@@ -332,7 +343,7 @@ async def z_use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
 
 
 @bot.command()
-async def inspect_territory(ctx, territory, planet):
+async def scan_territory(ctx, planet, territory):
     """Inspects a given territory of a planet
 
     EXAMPLE: ~inspect_territory "North" "Earth"
