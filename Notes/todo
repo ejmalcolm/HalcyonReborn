@@ -4,9 +4,7 @@ ROADMAP TO MVG:
 0.1.0 -- THE PLAYABLE BUILD
 
 - fix the busy sysytem!
-    - do it by, as the "source" aspect of the Task() object, putting in a dict that can be broken down to get the source
-    - something like "{EID: 'EVANhalcyon', LocType: 'Region', LocExact: (1,1)}
-    - {EName: 'EVANhalcyon', LocFile: 'Territory', LocExact: 'PRIMUSnorth'}
+    - for some reason it's not stopping new cases from popping
 
 - make sure you can only move_region when you're in space
 
@@ -32,5 +30,6 @@ ROADMAP TO MVG:
 - add more interface stuff
     - sub-inspection interfaces, e.g. inspecting Planet opens an interface linked to inspecting Entities
 - maybe change landed_on to be on territories, not planets
-- convert everything to the ID system its cool as fuck
+- convert everything to the LID system its cool as fuck
 - change the entity_id system
+- convert the LID identification system in Tasks and BotInterface to a function instead of copy/paste

@@ -28,7 +28,11 @@ class Task:
     def complete(self):
         """ Calls the task's associated trigger_func """
         # set the task user to not busy anymore
-        # self.source.busy = False
+        sourceFile = self.sourceLID['LocFile']
+        sourceKey = self.sourceLID['LocKey']
+        sourceEID = self.sourceLID['EID']
+        source = get_file(sourceFile)[sourceKey].content[sourceEID]
+        source.busy = False
         return self.trigger_func(*self.trigger_args)
 
 
