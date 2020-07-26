@@ -41,7 +41,7 @@ class Vehicle:
             # get the Territory ID from the celestial + territory name
             TID = self.celestial.upper() + self.territory.lower()
             del Territories[TID].content[self.id]
-            
+
         # add self to new region
         new_region = Regions[new_region_xy]
         new_region.content[self.id] = self
@@ -188,8 +188,6 @@ class Halcyon(Spaceship):
 # z = Halcyon(Eriq, (0, 0))
 # a = Halcyon(Emily, (0, 0))
 
-# Celestials = get_file('Celestials.pickle')
-# Primus = Celestials['Primus']
 # Primus.landed_on('EVANhalcyon', 'North')
 
 # Tasks = get_file('Tasks.pickle')

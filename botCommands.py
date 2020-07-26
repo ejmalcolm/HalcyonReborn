@@ -199,19 +199,41 @@ async def inspect_entity(ctx, entity_name, target_xy):
     await ctx.send(output)
 
 
-@bot.command()
-async def use_ability(ctx, caster_name, caster_xy):
+@bot.command(usage='"caster_name" "caster_xy" OR ~use_ability "caster_name" "territory_name" "planet_name"')
+async def use_ability(ctx, *args):
     """Uses an ability of a given entity in a given region.
 
     Activates a user interface that displays all of the casters abilities in an interactive format.
 
     EXAMPLE: use_ability "Evan's Halcyon" 0,0
+    OR
+    EXAMPLE: use_ability "Evan's Halcyon" North Earth
 
     caster_entity_name -- The entity whose ability you wish to use
-    caster_xy -- The (x,y) coordinates of the region containing the caster"""
 
-    # get the obj we want
-    caster = get_entity_obj(caster_name, caster_xy)
+    caster_xy -- The (x,y) coordinates of the region containing the caster
+    OR
+    territory_name -- The name of the territory the caster is in
+    planet_name -- The name of the planet the caster is on
+    """
+    if len(args) == 2:
+        # if the caster is in a region
+        caster_name = args[0]
+        caster_xy = args[1]
+        # get the obj we want
+        caster = get_entity_obj(caster_name, caster_xy)
+    elif len(args) == 3:
+        # if the caster is in a territory
+        Territories = get_file('Territories.pickle')
+        caster_name = args[0]
+        TID = args[2].upper() + args[1].lower()
+        EID = entity_display_to_id(caster_name)
+        terr_obj = Territories[TID]
+        caster = terr_obj.content[EID]
+    else:
+        await ctx.send('```Error: Wrong number of arguments.\n ~use_ability "caster_name" "caster_xy" OR ~use_ability "caster_name" "territory_name" "planet_name"')
+        return
+    # get the names of the abilities
     ability_dict = {i: caster.abilities[i] for i in range(0, len(caster.abilities))}
     text = f'```Abilities: {ability_dict}.\nSelect the ability number you wish to cast.```'
     abilitygui = await ctx.send(text)
@@ -239,7 +261,7 @@ async def use_ability(ctx, caster_name, caster_xy):
     requested_args = inspect.getfullargspec(ability_method).args[1:]
     # IF there are args
     if requested_args:
-    # ask for the args and wait for response
+        # ask for the args and wait for response
         await ctx.send(f'```Please enter the arguments: {requested_args}\nDo NOT use a tilde (~).\nSeparate each argument with spaces and use "quotes".```')
 
         def check(message):
@@ -286,13 +308,13 @@ async def z_use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
 
 
 @bot.command()
-async def inspect_territory(ctx, planet, territory):
+async def inspect_territory(ctx, territory, planet):
     """Inspects a given territory of a planet
 
     EXAMPLE: ~inspect_territory "North" "Earth"
 
-    planet -- The name of the planet
-    territory -- The name of the territory"""
+    territory -- The name of the territory
+    planet -- The name of the planet"""
     Territories = get_file('Territories.pickle')
     # get the territory ID
     TID = planet.upper() + territory.lower()
