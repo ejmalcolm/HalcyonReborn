@@ -163,6 +163,9 @@ class Territory:
         Territories[self.id] = self
         save_file(Territories, 'Territories.pickle')
 
+    def __str__(self):
+        return f'{self.label} region of {self.parent}'
+
     def inspect(self):
         messages = [f'The {self.label} territory of the celestial {self.parent}.',
                     f'It is a {self.description} biome.',
@@ -171,3 +174,23 @@ class Territory:
             content_list = [str(obj) for obj in self.content.values()]
             messages.append(f'It currently contains the following entities: {content_list}.')
         return Payload(self, messages)
+
+    def resource_harvested(self, resource_name, harvester_ID):
+        # decrease resource by 1
+        try:
+            self.resources[resource_name] -= 1
+        except KeyError as e:
+            # double-check that the resource is actually here
+            print(f'{e} not found in {self} when harvest was attempted by {self.content[harvester_ID]}.')
+            messages = [f'{resource_name} in {self} was depleted before {self.content[harvester_ID]} could complete harvest.']
+            return Payload(None, messages)
+        # add the resource to the harvester's inventory
+        if resource_name in self.content[harvester_ID].inventory:
+            # increment if already exists
+            self.content[harvester_ID].inventory[resource_name] += 1
+        else:
+            # set if it doesn't exist
+            self.content[harvester_ID].inventory[resource_name] = 1
+        harvester = self.content[harvester_ID]
+        messages = [f'{harvester} has harvested 1 {resource_name}.']
+        return Payload(None, messages)

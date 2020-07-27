@@ -1,6 +1,7 @@
 from entities import Entity
 from players import Player
 from botInterface import Payload, region_string_to_int
+from files import get_file, save_file
 
 # TODO: actor, organisms, automatons, laborers
 
@@ -8,12 +9,14 @@ from botInterface import Payload, region_string_to_int
 class Actor(Entity):
     """Any singular, self-propelled entity that can move between territories
 
-    speed_land -- The amount of hours it takes to move from one territory to another"""
+    speed_land -- The amount of hours it takes to move from one territory to another
+    inventory -- Any items the entity is carrying. Key=item, value = amount."""
 
     def __init__(self, owner, xy=None,
                  celestial=None, territory=None, busy=False,
-                 speed_land=1):
+                 speed_land=1, inventory={}):
         self.speed_land = speed_land
+        self.inventory = inventory
         super().__init__(owner, xy, celestial=celestial, territory=territory, busy=busy)
 
     def A_move_territory(self, new_territory):
@@ -40,6 +43,43 @@ class Actor(Entity):
                        onCompleteArgs=[new_TID])
 
 
-class Gatherer(Actor):
-    """An Actor that can harvest resources"""
-    pass
+class Harvester(Actor):
+    """An Actor that can harvest resources
+
+    harvest_time -- Time, in hours, to harvest 1 unit of a resource
+    """
+
+    def __init__(self, owner, xy=None,
+                 celestial=None, territory=None, busy=False,
+                 harvest_time=1):
+        self.harvest_time = harvest_time
+        super().__init__(owner, xy, celestial=celestial, territory=territory, busy=busy)
+
+    def harvest_resource(self, resource_name):
+        """Harvest a resource in the same territory as this Actor
+
+        resource_name -- The name of the resource to harvest
+        You can see the resources in a territory with ~scan.
+        """
+        # get the territory of self
+        TID = self.celestial.upper() + self.territory.lower()
+        Territories = get_file('Territories.pickle')
+        terr_obj = Territories[TID]
+        try:
+            if terr_obj.resources[resource_name] != 0:
+                # harvest the resource
+                duration = self.harvest_time
+                messages = [f'{self} is now harvesting 1 {resource_name} from {self_territory}.',
+                            f'It will be completed in {duration} hours.']
+                return Payload(self.get_LID(), messages, isTaskMaker=True,
+                               taskDuration=duration,
+                               onCompleteFunc=[terr_obj.resource_harvested],
+                               onCompleteArgs=[resource_name, self.id])
+            elif terr_obj.resource[resource_name] == 0:
+                messages = [f'The {resource_name} in {self.territory} is depleted.',
+                            f'Wait for Evan to implement the regeneration mechanic.']
+                return Payload(self.get_LID(), messages)
+        except KeyError:
+            # if the resource doesn't exist at all in the territory
+            messages = f'There is no {resource_name} in {self.territory}'
+            return Payload(self.get_LID(), messages)

@@ -5,6 +5,7 @@ THINGS THAT CAME UP
 - evaluate if we actually need self.celestial or we can just have a self.territoryID that works for everything
 - really dont think we need self.celestial but itll be a refactor 4 sure
 - change land_on's trigger_func to set_new_territory
+- change harvest_time for Harvester to a dictionary, allowing different harvest times for each resource
 
 0.1.0 -- THE PLAYABLE BUILD
 

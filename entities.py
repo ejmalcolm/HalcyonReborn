@@ -6,12 +6,12 @@ class Entity:
     """All controllable units that can move between different areas."""
 
     def __init__(self, owner, xy=None, celestial=None, territory=None, busy=False):
-        self.owner = owner  # the Player ID who owns this
+        self.owner = owner  # the Player ID who owns this ('Evan')
         self.xy = xy  # LID of region (0,0) (tuple)
-        self.celestial = None
+        self.celestial = celestial
         self.territory = territory  # LID of territory ('PRIMUSnorth')
         self.busy = busy  # If the vehicle is doing something
-        self.id = self.owner.name.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
+        self.id = self.owner.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
         # get all the functions that can be "cast"-- abilities in game terms
         self.abilities = [f[2:] for f in dir(type(self)) if f.startswith('A_')]
         if self.xy:
@@ -25,6 +25,9 @@ class Entity:
             TerrKey = self.celestial.upper() + self.territory.lower()
             Territories[TerrKey].content[self.id] = self
             save_file(Territories, 'Territories.pickle')
+
+    def __str__(self):
+        return f"{self.owner}'s {type(self).__name__}"
 
     def set_new_region(self, new_region_xy):
         """Trigger function used to move the entity into a new region
