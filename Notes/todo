@@ -3,11 +3,13 @@ ROADMAP TO MVG:
 THINGS THAT CAME UP
 - add checks to abilities
 - evaluate if we actually need self.celestial or we can just have a self.territoryID that works for everything
-
+- really dont think we need self.celestial but itll be a refactor 4 sure
+- change land_on's trigger_func to set_new_territory
 
 0.1.0 -- THE PLAYABLE BUILD
 
-- entity superclass
+- change scan to be able to scan territory and regions
+- inspect things in territories and in regions
 
 - actors
     - Start with Automatons only

@@ -1,0 +1,59 @@
+    def __init__(self, owner, xy, celestial=None, territory=None, busy=False):
+        self.owner = owner  # the Player ID who owns this
+        self.xy = xy  # the initial coordinates of this vehicle
+        self.celestial = celestial  # what celestial the vehicle is on, if any
+        self.territory = territory  # what territory the vehicle is in
+        self.busy = busy  # If the vehicle is doing something
+        self.id = self.owner.name.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
+        # get all the functions that can be "cast"-- abilities in game terms
+        self.abilities = [f[2:] for f in dir(type(self)) if f.startswith('A_')]
+        # store self into Regions.pickle
+        Regions = get_file('Regions.pickle')
+        Regions[self.xy].content[self.id] = self
+        save_file(Regions, 'Regions.pickle')
+
+    def change_region(self, new_region_xy):
+        # remove self from old region
+        Regions = get_file('Regions.pickle')
+        if self.id in Regions[self.xy].content:
+            del Regions[self.xy].content[self.id]
+        else:
+            # triggered if the entity is on a celestial
+            # therefore:
+            Territories = get_file('Territories.pickle')
+            # get the Territory ID from the celestial + territory name
+            TID = self.celestial.upper() + self.territory.lower()
+            # remove self from the territory and celestial
+            self.territory = None
+            self.celestial = None
+            del Territories[TID].content[self.id]
+            save_file(Territories, 'Territories.pickle')
+        # add self to new region
+        self.xy = new_region_xy
+        new_region = Regions[new_region_xy]
+        new_region.content[self.id] = self
+        save_file(Regions, 'Regions.pickle')
+        # managing output (what the bot should send)
+        messages = [f'{self} has arrived in {new_region_xy}']
+        return Payload(self.get_LID(), messages)
+
+    def inspect(self):
+        """Returns details describing the current state of this entity"""
+        messages = [f'A {type(self).__name__} belonging to {self.owner}.',
+                    f'It is currently in the region {self.xy}']
+        if self.celestial:
+            messages.append(f'It is currently on the celestial {self.celestial}, in the territory {self.territory}.')
+        messages.append(f'It has the following abilities: {self.abilities}')
+        return Payload(self.get_LID(), messages)
+
+    def get_LID(self):
+        """Returns the Location ID of this object"""
+        LID = {'EID': self.id}
+        if self.territory:
+            LID['LocFile'] = 'Territories.pickle'
+            LID['LocKey'] = self.celestial.upper() + self.territory.lower()
+        elif self.xy:
+            LID['LocFile'] = 'Regions.pickle'
+            LID['LocKey'] = self.xy
+        return LID
+

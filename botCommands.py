@@ -307,9 +307,8 @@ async def use_ability(ctx, *args):
             await ctx.send('```AbilityGUI has timed out. Re-type the command to re-activate.```')
             return
         arg_string1 = msg.content
-        # first, split off the tilde and commas from the name
+        # first, split off the tilde from the name
         arg_string2 = arg_string1.replace('~', '')
-        arg_string2 = arg_string2.replace(',', '')
         # then, split on spaces
         args = arg_string2.split()
         # then we call the method

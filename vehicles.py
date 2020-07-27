@@ -1,5 +1,6 @@
 from regions import Region, Celestial, Planet, Territory
 from players import Player
+from entities import Entity
 
 from botInterface import Payload, region_string_to_int, payload_manage
 
@@ -13,66 +14,13 @@ def distance_between(x1, x2, y1, y2):
     return distance
 
 
-class Vehicle:
+class Vehicle(Entity):
+    """Any entity that can carry other entities while moving.
+    """
 
-    def __init__(self, owner, xy, celestial=None, territory=None, busy=False):
-        self.owner = owner  # the Player ID who owns this
-        self.xy = xy  # the initial coordinates of this vehicle
-        self.celestial = celestial  # what celestial the vehicle is on, if any
-        self.territory = territory  # what territory the vehicle is in
-        self.busy = busy  # If the vehicle is doing something
-        self.id = self.owner.name.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
-        # get all the functions that can be "cast"-- abilities in game terms
-        self.abilities = [f[2:] for f in dir(type(self)) if f.startswith('A_')]
-        # store self into Regions.pickle
-        Regions = get_file('Regions.pickle')
-        Regions[self.xy].content[self.id] = self
-        save_file(Regions, 'Regions.pickle')
-
-    def change_region(self, new_region_xy):
-        # remove self from old region
-        Regions = get_file('Regions.pickle')
-        if self.id in Regions[self.xy].content:
-            del Regions[self.xy].content[self.id]
-        else:
-            # triggered if the entity is on a celestial
-            # therefore:
-            Territories = get_file('Territories.pickle')
-            # get the Territory ID from the celestial + territory name
-            TID = self.celestial.upper() + self.territory.lower()
-            # remove self from the territory and celestial
-            self.territory = None
-            self.celestial = None
-            del Territories[TID].content[self.id]
-            save_file(Territories, 'Territories.pickle')
-        # add self to new region
-        self.xy = new_region_xy
-        new_region = Regions[new_region_xy]
-        new_region.content[self.id] = self
-        save_file(Regions, 'Regions.pickle')
-        # managing output (what the bot should send)
-        messages = [f'{self} has arrived in {new_region_xy}']
-        return Payload(self.get_LID(), messages)
-
-    def inspect(self):
-        """Returns details describing the current state of this entity"""
-        messages = [f'A {type(self).__name__} belonging to {self.owner}.',
-                    f'It is currently in the region {self.xy}']
-        if self.celestial:
-            messages.append(f'It is currently on the celestial {self.celestial}, in the territory {self.territory}.')
-        messages.append(f'It has the following abilities: {self.abilities}')
-        return Payload(self.get_LID(), messages)
-
-    def get_LID(self):
-        """Returns the Location ID of this object"""
-        LID = {'EID': self.id}
-        if self.territory:
-            LID['LocFile'] = 'Territories.pickle'
-            LID['LocKey'] = self.celestial.upper() + self.territory.lower()
-        elif self.xy:
-            LID['LocFile'] = 'Regions.pickle'
-            LID['LocKey'] = self.xy
-        return LID
+    def __init__(self, owner, xy=None,
+                 celestial=None, territory=None, busy=False,):
+        super().__init__(owner, xy, celestial=celestial, territory=territory, busy=busy)
 
 
 class Spaceship(Vehicle):
@@ -111,7 +59,7 @@ class Spaceship(Vehicle):
                     f'It will arrive in {duration} hours']
         return Payload(self.get_LID(), messages, isTaskMaker=True,
                        taskDuration=duration,
-                       onCompleteFunc=self.change_region,
+                       onCompleteFunc=self.set_new_region,
                        onCompleteArgs=[adjacent_region_tup])
 
     def A_land_on(self, target_territory, target_celestial):
@@ -206,9 +154,3 @@ class Halcyon(Spaceship):
 # x = Halcyon(James, (0, 0))
 # z = Halcyon(Eriq, (0, 0))
 # a = Halcyon(Emily, (0, 0))
-
-# x = get_file('Regions.pickle')
-# print(x)
-
-# r = x[(0, 0)]
-# print(r.content['JAMEShalcyon'].territory)
