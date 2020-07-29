@@ -183,26 +183,46 @@ async def register_player(ctx, player_name):
     await ctx.send(f'Player {player_name} created with UID {uid}')
 
 
-@bot.command()
-async def scan_region(ctx, target_xy):
-    """Returns the contents of the given region (x,y).
+@bot.command(usage='"target_xy" OR ~scan "planet_name" "territory_name"')
+async def scan(ctx, *args):
+    """Returns the contents of the given region or territory.
 
-    You must have vision of the target region.
-    Vision is typically granted by possessing a unit in that region.
+    You must have vision of the target.
+    Vision is typically granted by possessing a unit in that area.
 
-    EXAMPLE: ~scan_region (0,0)
+    EXAMPLE: ~scan (0,0)
+    OR
+    EXAMPLE: ~scan Earth North
 
-    target_xy -- The (x,y) coordinates of the region to scan"""
-    Regions = get_file('Regions.pickle')
-    # translate coords to actual region object
-    target_region = Regions[region_string_to_int(target_xy)]
-    # check if the user has vision of that region
+    target_xy -- The (x,y) coordinates of the region to scan
+    OR
+    planet_name -- The name of the planet the target is on
+    territory_name -- The label of the territory the target is in"""
+    if len(args) == 1:
+        # if the caster is in a region
+        target_xy = args[1]
+        storage_file = 'Regions.pickle'
+        Regions = get_file(storage_file)
+        # translate coords to actual region object
+        target = Regions[region_string_to_int(target_xy)]
+    elif len(args) == 2:
+        # if the caster is in a territory
+        planet_name = args[0]
+        territory_name = args[1]
+        territory_label = planet_name.upper() + territory_name.lower()
+        storage_file = 'Territories.pickle'
+        Territories = get_file(storage_file)
+        target = Territories[territory_label]
+    else:
+        await ctx.send('```Error: Improper number of arguments.\n ~scan "target_xy" OR ~scan "planet_name" "territory_name"')
+        return
+    # check if the user has vision of the target
     uid = ctx.message.author.id
-    if not target_region.check_vision(uid):
-        await ctx.send(f'```You do not have vision of {target_region}.```')
+    if not target.check_vision(uid):
+        await ctx.send(f'```You do not have vision of {target}.```')
         return
     # if they do, scan it
-    result = target_region.scan()
+    result = target.scan()
     output = payload_manage(result)
     await ctx.send(output)
 

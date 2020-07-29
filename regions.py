@@ -23,7 +23,7 @@ class Region:
         prefix = ['This region contains the following entities:']
         content_list = [str(obj) for obj in self.content.values()]
         messages = prefix + content_list
-        return Payload(self, messages)
+        return Payload(None, messages)
 
     def check_vision(self, viewer_uid):
         '''Checks each entity in region, returns if <viewer_uid> owns any'''
@@ -165,6 +165,12 @@ class Territory:
 
     def __str__(self):
         return f'{self.label} region of {self.parent}'
+
+    def scan(self):
+        prefix = ['This territory contains the following entities:']
+        content_list = [str(obj) for obj in self.content.values()]
+        messages = prefix + content_list
+        return Payload(None, messages)
 
     def inspect(self):
         messages = [f'The {self.label} territory of the celestial {self.parent}.',
