@@ -20,12 +20,13 @@ class Region:
         return str(self.xy)
 
     def scan(self):
-        messages = ['This region contains the following entities:']
+        messages = [f'This is the region of space denoted by the coordinates {self.xy}',
+                    'This region contains the following entities:']
         for obj in self.content.values():
             try:
-                messages.append(f'{str(obj)} | {obj.owner}')
+                messages.append(f'  {str(obj)} | {obj.owner}')
             except AttributeError:
-                messages.append(f'{str(obj)} | {type(obj).__name__}')
+                messages.append(f'  {str(obj)} | {type(obj).__name__}')
         return Payload(None, messages)
 
     def check_vision(self, viewer_uid):
@@ -193,8 +194,12 @@ class Territory:
                     f'It is a {self.description} biome.',
                     f'It currently hosts the following resources: {self.resources}']
         if self.content:
-            content_list = [str(obj) for obj in self.content.values()]
-            messages.append(f'It currently contains the following entities: {content_list}.')
+            messages.append(f'It currently contains the following entities:')
+        for obj in self.content.values():
+            try:
+                messages.append(f'  {str(obj)} | {obj.owner}')
+            except AttributeError:
+                messages.append(f'  {str(obj)} | {type(obj).__name__}')
         return Payload(self, messages)
 
     def resource_harvested(self, resource_name, harvester_ID):

@@ -1,6 +1,7 @@
 from files import get_file, save_file
 from botInterface import Payload
 from regions import Region
+from players import Player
 
 
 class Entity:
@@ -16,10 +17,11 @@ class Entity:
         # get all the functions that can be "cast"-- abilities in game terms
         self.abilities = [f[2:] for f in dir(type(self)) if f.startswith('A_')]
         # EID stuff and adding self
-        self.eid = self.define_eid()
+        self.eid = self.get_eid()
         if self.xy:
             # store self into Regions.pickle
             Regions = get_file('Regions.pickle')
+            print(f'EID BEING USED: {self.eid}')
             Regions[self.xy].content[self.eid] = self
             save_file(Regions, 'Regions.pickle')
         if self.territory:
@@ -30,33 +32,51 @@ class Entity:
             save_file(Territories, 'Territories.pickle')
 
     def __str__(self):
-        return f"{self.define_eid()}"
+        return f"{self.eid}"
 
-    def define_eid(self):
-        EID = type(self).__name__
-        i = 0
+    def get_eid(self):
+        entityIncrement = 1
+        EID = type(self).__name__ + f' {entityIncrement}'
 
         def check_duplicate(self, EID):
-            print(EID)
+
+            print(f'CHECKING DUPLICATE: {EID}')
+
             if self.xy:
                 # check for duplicate in region
+                # get the region object
                 Regions = get_file('Regions.pickle')
                 region = Regions[self.xy]
                 if EID in region.content.keys():
-                    EID += f' {i}'
+                    # duplicate found
+                    # increment i
+                    nonlocal entityIncrement
+                    entityIncrement += 1
+                    # set new EID
+                    EID = EID[:-2] + f' {entityIncrement}'
+                    # check if the new EID is a dupe
+                    return check_duplicate(self, EID)
+                else:
+                    # if there's no duplicate
+                    return EID
             if self.territory:
                 # check for duplicate in territory
                 Territories = get_file('Territories.pickle')
                 TID = self.celestial.upper() + self.territory.lower()
                 territory = Territories[TID]
-                print(EID)
-                print(territory.content.keys())
                 if EID in territory.content.keys():
-                    EID += f' {i}'
-            return EID
-        i += 1
-        EID = check_duplicate(self, EID)
-        return EID
+                    # duplicate found
+                    # increment i
+                    entityIncrement += 1
+                    # set new EID
+                    EID = EID[:-2] + f' {entityIncrement}'
+                    # check if the new EID is a dupe
+                    return check_duplicate(self, EID)
+                else:
+                    # if there's no duplicate
+                    return EID
+
+        return check_duplicate(self, EID)
 
     def set_new_region(self, new_region_xy):
         """Trigger function used to move the entity into a new region
@@ -148,4 +168,12 @@ class Entity:
             LID['LocKey'] = self.xy
         return LID
 
-Region((0,0))
+# Player('Evan', 1)
+# y = Region((0,0))
+# Entity('Evan', xy=(0,0))
+# Entity('Evan', xy=(0,0))
+# Entity('Evan', xy=(0,0))
+
+
+# Regions = get_file('Regions.pickle')
+# print(Regions[(0,0)].content)

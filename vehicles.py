@@ -151,15 +151,24 @@ class Halcyon(Spaceship):
 # James = Player(155783768307793920, 'James')
 # Eriq = Player(155560259065348097, 'Eriq')
 # Emily = Player(612827918984413256, 'Em-Head')
+# Storm = Player(155794075432255489, 'Storm')
 # y = Halcyon('Evan', (0, 0))
 # x = Halcyon('James', (0, 0))
 # z = Halcyon('Eriq', (0, 0))
 # a = Halcyon('Emily', (0, 0))
-# h = Harvester('Evan', celestial='Primus', territory='North')
-# b = Harvester('Evan', celestial='Primus', territory='North')
+# Harvester('Evan', celestial='Primus', territory='North')
+# Harvester('Evan', celestial='Primus', territory='North')
+# Harvester('Evan', celestial='Primus', territory='North')
+# Harvester('James', celestial='Primus', territory='North')
+# Harvester('James', celestial='Primus', territory='North')
+# Harvester('Eriq', celestial='Primus', territory='North')
+# Harvester('Storm', celestial='Primus', territory='North')
+
 
 # Territories = get_file('Territories.pickle')
-# HARVESTER = Territories['PRIMUSnorth'].content['EVANharvester']
+# CONTENT = Territories['PRIMUSnorth'].content
+
+# print(CONTENT)
 
 # HARVESTER.set_new_territory('PRIMUSsouth')
 
