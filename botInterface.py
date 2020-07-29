@@ -46,7 +46,7 @@ class Payload:
         self.onCompleteArgs = onCompleteArgs
 
     def __str__(self):
-        return 'This is a bot payload originating from %s' % self.source
+        return 'This is a bot payload originating from %s' % self.sourceLID['EID']
 
 
 def payload_manage(pload):
@@ -58,8 +58,6 @@ def payload_manage(pload):
         sourceKey = sourceLID['LocKey']
         sourceEID = sourceLID['EID']
         storageDict = get_file(sourceFile)
-        print(storageDict)
-        print(storageDict[sourceKey].content)
         source = storageDict[sourceKey].content[sourceEID]
         if source.busy:
             # check if the entity is busy

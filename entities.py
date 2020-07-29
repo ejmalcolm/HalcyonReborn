@@ -9,7 +9,7 @@ class Entity:
         self.owner = owner  # the Player ID who owns this ('Evan')
         self.xy = xy  # LID of region (0,0) (tuple)
         self.celestial = celestial
-        self.territory = territory  # LID of territory ('PRIMUSnorth')
+        self.territory = territory  # LID of territory ('North')
         self.busy = busy  # If the vehicle is doing something
         self.id = self.owner.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
         # get all the functions that can be "cast"-- abilities in game terms
@@ -89,6 +89,8 @@ class Entity:
         Territories = get_file('Territories.pickle')
         new_territory = Territories[new_territory_ID]
         new_territory.content[self.id] = self
+        # change self.territory
+        self.territory = new_territory.label
         save_file(Territories, 'Territories.pickle')
         # bot output
         messages = [f'{self} has arrived in {new_territory}']
@@ -100,7 +102,7 @@ class Entity:
         if self.xy:
             messages.append(f'It is currently in the region {self.xy}')
         if self.celestial:
-            messages.append(f'It is currently on the celestial {self.celestial}, in the territory {self.territory}.')
+            messages.append(f'It is currently on the celestial {self.celestial}, in the {self.territory} territory.')
         messages.append(f'It has the following abilities: {self.abilities}')
         return Payload(self.get_LID(), messages)
 

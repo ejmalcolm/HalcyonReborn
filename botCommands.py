@@ -14,6 +14,8 @@ from tasks import Task, check_tasks, manual_complete_all_tasks
 from players import *
 from regions import *
 from vehicles import *
+from buildings import *
+from actors import *
 
 client = discord.Client()
 bot = commands.Bot(command_prefix='~', case_insensitive=True)
@@ -43,14 +45,14 @@ def error_helper(coro):
     return wrapper
 
 
-def get_entity_obj(entity_display, target_xy=None, target_planet=None, target_territory=None,):
+def get_entity_obj(entity_display, target_xy=None, target_celestial=None, target_territory=None,):
     """Gets a target entity object given a entity_string and a region
 
     entity_display -- The display name of an entity, e.g. "Breq's Halcyon" \n
     target_xy -- The "(x, y)" coordinates of the region containing the entity
     OR
-    target_planet -- The planet the entity is in
-    target_territory -- The territory that the entity is in 
+    target_celestial -- The celestial the entity is on
+    target_territory -- The territory that the entity is in
     """
     if target_xy:
         # if it's in a region
@@ -65,7 +67,7 @@ def get_entity_obj(entity_display, target_xy=None, target_planet=None, target_te
     if target_territory:
         # if it's in the territory
         Territories = get_file('Territories.pickle')
-        TID = target_planet.upper() + target_territory.lower()
+        TID = target_celestial.upper() + target_territory.lower()
         target_territory = Territories[TID]
         # get the entity's ID
         entity_id = entity_display_to_id(entity_display)
@@ -183,7 +185,7 @@ async def register_player(ctx, player_name):
     await ctx.send(f'Player {player_name} created with UID {uid}')
 
 
-@bot.command(usage='"target_xy" OR ~scan "planet_name" "territory_name"')
+@bot.command(usage='"target_xy" OR ~scan "celestial_name" "territory_name"')
 async def scan(ctx, *args):
     """Returns the contents of the given region or territory.
 
@@ -196,25 +198,25 @@ async def scan(ctx, *args):
 
     target_xy -- The (x,y) coordinates of the region to scan
     OR
-    planet_name -- The name of the planet the target is on
+    celestial_name -- The name of the celestial the target is on
     territory_name -- The label of the territory the target is in"""
     if len(args) == 1:
         # if the caster is in a region
-        target_xy = args[1]
+        target_xy = args[0]
         storage_file = 'Regions.pickle'
         Regions = get_file(storage_file)
         # translate coords to actual region object
         target = Regions[region_string_to_int(target_xy)]
     elif len(args) == 2:
         # if the caster is in a territory
-        planet_name = args[0]
+        celestial_name = args[0]
         territory_name = args[1]
-        territory_label = planet_name.upper() + territory_name.lower()
+        territory_label = celestial_name.upper() + territory_name.lower()
         storage_file = 'Territories.pickle'
         Territories = get_file(storage_file)
         target = Territories[territory_label]
     else:
-        await ctx.send('```Error: Improper number of arguments.\n ~scan "target_xy" OR ~scan "planet_name" "territory_name"')
+        await ctx.send('```Error: Improper number of arguments.\n ~scan "target_xy" OR ~scan "celestial_name" "territory_name"')
         return
     # check if the user has vision of the target
     uid = ctx.message.author.id
@@ -227,22 +229,40 @@ async def scan(ctx, *args):
     await ctx.send(output)
 
 
-@bot.command()
-async def inspect(ctx, entity_name, target_xy):
+@bot.command(usage='"entity_name" "target_xy" OR ~inspect "entity_name" "celestial_name" "territory_name"')
+async def inspect(ctx, *args):
     """Provides details about a given entity
 
     EXAMPLE: ~inspect "Evan's Halcyon" 0,0
+    OR
+    EXAMPLE: ~inspect "Evan's Halcyon" Earth North
 
     entity_name -- The display name of the target entity
-    target_xy -- The (x,y) coordinates of the region containing the target"""
-    # get the obj we want
-    target = get_entity_obj(entity_name, target_xy=target_xy)
+    target_xy -- The (x,y) coordinates of the region containing the target
+    OR
+    celestial_name -- The name of the celestial the entity is on
+    territory_name -- The name of the territory the entity is in"""
+    if len(args) == 2:
+        # if region
+        entity_name = args[0]
+        target_xy = args[1]
+        # get the obj we want
+        target = get_entity_obj(entity_name, target_xy=target_xy)
+    elif len(args) == 3:
+        # if territory
+        entity_name = args[0]
+        celestial_name = args[1]
+        territory_name = args[2]
+        target = get_entity_obj(entity_name, target_celestial=celestial_name, target_territory=territory_name)
+    else:
+        await ctx.send('```Error: Improper number of arguments.\n ~scan "target_xy" OR ~scan "celestial_name" "territory_name"')
+        return
     # inspect it and send the result to payload manager
     output = payload_manage(target.inspect())
     await ctx.send(output)
 
 
-@bot.command(usage='"caster_name" "caster_xy" OR ~use_ability "caster_name" "planet_name" "territory_name"')
+@bot.command(usage='"caster_name" "caster_xy" OR ~use_ability "caster_name" "celestial_name" "territory_name"')
 async def use_ability(ctx, *args):
     """Uses an ability of a given entity in a given region.
 
@@ -259,7 +279,7 @@ async def use_ability(ctx, *args):
 
     caster_xy -- The (x,y) coordinates of the region containing the caster
     OR
-    planet_name -- The name of the planet the caster is on
+    celestial_name -- The name of the celestial the caster is on
     territory_name -- The name of the territory the caster is in
     """
     if len(args) == 2:
@@ -271,11 +291,11 @@ async def use_ability(ctx, *args):
     elif len(args) == 3:
         # if the caster is in a territory
         caster_name = args[0]
-        caster_planet = args[1]
+        caster_celestial = args[1]
         caster_territory = args[2]
-        caster = get_entity_obj(caster_name, target_territory=caster_territory, target_planet=caster_planet)
+        caster = get_entity_obj(caster_name, target_territory=caster_territory, target_celestial=caster_celestial)
     else:
-        await ctx.send('```Error: Improper number of arguments.\n ~use_ability "caster_name" "caster_xy" OR ~use_ability "caster_name" "territory_name" "planet_name"')
+        await ctx.send('```Error: Improper number of arguments.\n ~use_ability "caster_name" "caster_xy" OR ~use_ability "caster_name" "territory_name" "celestial_name"```')
         return
     # get the names of the abilities
     ability_dict = {i: caster.abilities[i] for i in range(0, len(caster.abilities))}
@@ -362,7 +382,7 @@ async def z_use_ability(ctx, caster_entity_name, caster_xy, ability, *args):
 
 
 @bot.command()
-async def scan_territory(ctx, planet, territory):
+async def inspect_territory(ctx, planet, territory):
     """Inspects a given territory of a planet
 
     EXAMPLE: ~inspect_territory "North" "Earth"

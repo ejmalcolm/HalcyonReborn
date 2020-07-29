@@ -6,6 +6,8 @@ THINGS THAT CAME UP
 - really dont think we need self.celestial but itll be a refactor 4 sure
 - change land_on's trigger_func to set_new_territory
 - change harvest_time for Harvester to a dictionary, allowing different harvest times for each resource
+- for ~inspect entity_name territory, we might be able to remove the celestial and just use the entity's self.celestial for it
+- change self.territory for entity to using python's property() to actually return the terr obj
 
 0.1.0 -- THE PLAYABLE BUILD
 

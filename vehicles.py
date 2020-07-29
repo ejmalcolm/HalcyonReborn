@@ -1,6 +1,7 @@
 from regions import Region, Celestial, Planet, Territory
 from players import Player
 from entities import Entity
+from actors import Harvester
 
 from botInterface import Payload, region_string_to_int, payload_manage
 
@@ -62,11 +63,11 @@ class Spaceship(Vehicle):
                        onCompleteFunc=self.set_new_region,
                        onCompleteArgs=[adjacent_region_tup])
 
-    def A_land_on(self, target_territory, target_celestial):
+    def A_land_on(self, target_celestial, target_territory):
         """Land on any celestial body capable of hosting a ship
 
-        target_territory -- The territory the ship should land in
         target_celestial -- The celestial to land on, must be in same region
+        target_territory -- The territory the ship should land in
         (Territories can be viewed by ~inspect_entity <landing_target>"""
         duration = self.speed_landing
         # Get the landing_target object
@@ -143,14 +144,25 @@ class Halcyon(Spaceship):
                            onCompleteArgs=self.linkRegion)
 
 
-Region((0, 0))
-Region((1, 0))
-Primus = Planet('Primus', (0, 0))
-Evan = Player(155782008826494976, 'Evan')
-James = Player(155783768307793920, 'James')
-Eriq = Player(155560259065348097, 'Eriq')
-Emily = Player(612827918984413256, 'Em-Head')
-y = Halcyon('Evan', (0, 0))
-x = Halcyon('James', (0, 0))
-z = Halcyon('Eriq', (0, 0))
-a = Halcyon('Emily', (0, 0))
+# Region((0, 0))
+# Region((1, 0))
+# Primus = Planet('Primus', (0, 0))
+# Evan = Player(155782008826494976, 'Evan')
+# James = Player(155783768307793920, 'James')
+# Eriq = Player(155560259065348097, 'Eriq')
+# Emily = Player(612827918984413256, 'Em-Head')
+# y = Halcyon('Evan', (0, 0))
+# x = Halcyon('James', (0, 0))
+# z = Halcyon('Eriq', (0, 0))
+# a = Halcyon('Emily', (0, 0))
+# h = Harvester('Evan', celestial='Primus', territory='North')
+
+# Territories = get_file('Territories.pickle')
+# HARVESTER = Territories['PRIMUSnorth'].content['EVANharvester']
+
+# HARVESTER.set_new_territory('PRIMUSsouth')
+
+# Territories = get_file('Territories.pickle')
+# print(Territories['PRIMUSnorth'].content)
+# print(Territories['PRIMUSsouth'].content)
+# print(Territories['PRIMUSsouth'].content['EVANharvester'].territory)

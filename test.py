@@ -6,12 +6,14 @@ from files import get_file, save_file
 # Planet('Primus', (0,0))
 # Harvester('Evan', celestial='Primus', territory='North')
 
-Territories = get_file('Territories.pickle')
-x = Territories['PRIMUSnorth']
+class A():
 
-print(x.resources)
+    def __init__(self):
+        print(1)
 
-x.resource_harvested('Stone', 'EVANharvester')
+    def change(self):
+        print(5)
 
-print(x.content['EVANharvester'].inventory)
-print(x.resources)
+
+x = A()
+print(x.c)

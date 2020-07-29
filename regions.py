@@ -36,7 +36,7 @@ class Region:
             return False
         for entity in self.content.values():
             try:
-                if entity.owner.uid == viewer.uid:
+                if entity.owner == viewer.name:
                     return True
             except AttributeError as e:
                 # generally, because there's an entity with no owner
@@ -166,13 +166,26 @@ class Territory:
     def __str__(self):
         return f'{self.label} region of {self.parent}'
 
-    def scan(self):
-        prefix = ['This territory contains the following entities:']
-        content_list = [str(obj) for obj in self.content.values()]
-        messages = prefix + content_list
-        return Payload(None, messages)
+    def check_vision(self, viewer_uid):
+        """Checks if the given UID owns at least 1 entity in the region
+        """
+        Players = get_file('Players.pickle')
+        try:
+            viewer = Players[viewer_uid]
+        except KeyError as e:
+            # generally if that player object hasn't been created
+            print(f'check_vision KeyError {e}')
+            return False
+        for entity in self.content.values():
+            try:
+                if entity.owner == viewer.name:
+                    return True
+            except AttributeError as e:
+                # generally, because there's an entity with no owner
+                print(e)
+        return False
 
-    def inspect(self):
+    def scan(self):
         messages = [f'The {self.label} territory of the celestial {self.parent}.',
                     f'It is a {self.description} biome.',
                     f'It currently hosts the following resources: {self.resources}']
@@ -182,9 +195,13 @@ class Territory:
         return Payload(self, messages)
 
     def resource_harvested(self, resource_name, harvester_ID):
-        # decrease resource by 1
+        # need to do this so we can save
+        Territories = get_file('Territories.pickle')
+        self_territory = Territories[self.id] 
+        harvester = self_territory.content[harvester_ID]
         try:
-            self.resources[resource_name] -= 1
+            # decrease resource by 1
+            self_territory.resources[resource_name] -= 1
         except KeyError as e:
             # double-check that the resource is actually here
             print(f'{e} not found in {self} when harvest was attempted by {self.content[harvester_ID]}.')
@@ -193,10 +210,11 @@ class Territory:
         # add the resource to the harvester's inventory
         if resource_name in self.content[harvester_ID].inventory:
             # increment if already exists
-            self.content[harvester_ID].inventory[resource_name] += 1
+            self_territory.content[harvester_ID].inventory[resource_name] += 1
         else:
             # set if it doesn't exist
-            self.content[harvester_ID].inventory[resource_name] = 1
-        harvester = self.content[harvester_ID]
+            self_territory.content[harvester_ID].inventory[resource_name] = 1
+        # save inventory and resource changes
+        save_file(Territories, 'Territories.pickle')
         messages = [f'{harvester} has harvested 1 {resource_name}.']
         return Payload(None, messages)

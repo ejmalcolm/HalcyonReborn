@@ -19,6 +19,20 @@ class Actor(Entity):
         self.inventory = inventory
         super().__init__(owner, xy, celestial=celestial, territory=territory, busy=busy)
 
+    def inspect(self):
+        """Returns details describing the current state of this entity
+        
+        Has inventory added"""
+        messages = [f'A {type(self).__name__} belonging to {self.owner}.']
+        if self.xy:
+            messages.append(f'It is currently in the region {self.xy}')
+        if self.celestial:
+            messages.append(f'It is currently on the celestial {self.celestial}, in the {self.territory} territory.')
+        if self.inventory:
+            messages.append(f'It currently is carrying {self.inventory}')
+        messages.append(f'It has the following abilities: {self.abilities}')
+        return Payload(self.get_LID(), messages)
+
     def A_move_territory(self, new_territory):
         """Move to another territory on the same celestial
 
@@ -55,8 +69,8 @@ class Harvester(Actor):
         self.harvest_time = harvest_time
         super().__init__(owner, xy, celestial=celestial, territory=territory, busy=busy)
 
-    def harvest_resource(self, resource_name):
-        """Harvest a resource in the same territory as this Actor
+    def A_harvest_resource(self, resource_name):
+        """Harvest a resource in the same territory as this Harvester
 
         resource_name -- The name of the resource to harvest
         You can see the resources in a territory with ~scan.
@@ -69,11 +83,11 @@ class Harvester(Actor):
             if terr_obj.resources[resource_name] != 0:
                 # harvest the resource
                 duration = self.harvest_time
-                messages = [f'{self} is now harvesting 1 {resource_name} from {self_territory}.',
+                messages = [f'{self} is now harvesting 1 {resource_name} from {self.territory} {self.celestial}.',
                             f'It will be completed in {duration} hours.']
                 return Payload(self.get_LID(), messages, isTaskMaker=True,
                                taskDuration=duration,
-                               onCompleteFunc=[terr_obj.resource_harvested],
+                               onCompleteFunc=terr_obj.resource_harvested,
                                onCompleteArgs=[resource_name, self.id])
             elif terr_obj.resource[resource_name] == 0:
                 messages = [f'The {resource_name} in {self.territory} is depleted.',
@@ -81,5 +95,37 @@ class Harvester(Actor):
                 return Payload(self.get_LID(), messages)
         except KeyError:
             # if the resource doesn't exist at all in the territory
-            messages = f'There is no {resource_name} in {self.territory}'
+            messages = [f'There is no {resource_name} in {self.territory}']
+            return Payload(self.get_LID(), messages)
+
+
+class Builder(Actor):
+    """An Actor that can help construct Building Plans
+
+    build_time -- Time, in hours, to contribute 1 unit of Construction to a building plan
+    """
+
+    def __init__(self, owner, xy=None,
+                 celestial=None, territory=None, busy=False,
+                 build_time=(1/3)):
+        self.build_time = build_time
+        super().__init__(owner, xy, celestial=celestial, territory=territory, busy=busy)
+
+    def A_construct_building(self, plan_name):
+        """Help construct a building plan in the same territory as this Builder
+
+        plan_name -- The name of the building plan to construct
+        You can see plans in the territory with ~scan
+        """
+        # get the territory of self
+        TID = self.celestial.upper() + self.territory.lower()
+        Territories = get_file('Territories.pickle')
+        terr_obj = Territories[TID]
+        try:
+            # get the building plan obj
+            bpan = terr_obj.content[plan_name]
+            print(bpan)
+        except KeyError:
+            # if the name doesn't exist in the territory
+            messages = [f'There is no plan named "{plan_name}" in {self.territory}.']
             return Payload(self.get_LID(), messages)
