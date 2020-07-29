@@ -156,6 +156,7 @@ class Halcyon(Spaceship):
 # z = Halcyon('Eriq', (0, 0))
 # a = Halcyon('Emily', (0, 0))
 # h = Harvester('Evan', celestial='Primus', territory='North')
+# b = Harvester('Evan', celestial='Primus', territory='North')
 
 # Territories = get_file('Territories.pickle')
 # HARVESTER = Territories['PRIMUSnorth'].content['EVANharvester']

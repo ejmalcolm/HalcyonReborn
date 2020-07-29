@@ -14,6 +14,12 @@ class A():
     def change(self):
         print(5)
 
+class B(A):
 
-x = A()
-print(x.c)
+    def __init__(self):
+        print('yay')
+        super().__init__()
+
+    def change(self):
+        print(10)
+        super().change()

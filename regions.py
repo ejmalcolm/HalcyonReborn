@@ -20,9 +20,12 @@ class Region:
         return str(self.xy)
 
     def scan(self):
-        prefix = ['This region contains the following entities:']
-        content_list = [str(obj) for obj in self.content.values()]
-        messages = prefix + content_list
+        messages = ['This region contains the following entities:']
+        for obj in self.content.values():
+            try:
+                messages.append(f'{str(obj)} | {obj.owner}')
+            except AttributeError:
+                messages.append(f'{str(obj)} | {type(obj).__name__}')
         return Payload(None, messages)
 
     def check_vision(self, viewer_uid):
@@ -40,7 +43,7 @@ class Region:
                     return True
             except AttributeError as e:
                 # generally, because there's an entity with no owner
-                print(e)
+                pass
         return False
 
 

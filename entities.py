@@ -1,5 +1,6 @@
 from files import get_file, save_file
 from botInterface import Payload
+from regions import Region
 
 
 class Entity:
@@ -10,24 +11,52 @@ class Entity:
         self.xy = xy  # LID of region (0,0) (tuple)
         self.celestial = celestial
         self.territory = territory  # LID of territory ('North')
+        self.id = self.owner.upper() + type(self).__name__.lower()
         self.busy = busy  # If the vehicle is doing something
-        self.id = self.owner.upper() + (type(self).__name__).lower()  # e.g. EVANhalcyon
         # get all the functions that can be "cast"-- abilities in game terms
         self.abilities = [f[2:] for f in dir(type(self)) if f.startswith('A_')]
+        # EID stuff and adding self
+        self.eid = self.define_eid()
         if self.xy:
             # store self into Regions.pickle
             Regions = get_file('Regions.pickle')
-            Regions[self.xy].content[self.id] = self
+            Regions[self.xy].content[self.eid] = self
             save_file(Regions, 'Regions.pickle')
         if self.territory:
             # store self into Territories.pickle
             Territories = get_file('Territories.pickle')
             TerrKey = self.celestial.upper() + self.territory.lower()
-            Territories[TerrKey].content[self.id] = self
+            Territories[TerrKey].content[self.eid] = self
             save_file(Territories, 'Territories.pickle')
 
     def __str__(self):
-        return f"{self.owner}'s {type(self).__name__}"
+        return f"{self.define_eid()}"
+
+    def define_eid(self):
+        EID = type(self).__name__
+        i = 0
+
+        def check_duplicate(self, EID):
+            print(EID)
+            if self.xy:
+                # check for duplicate in region
+                Regions = get_file('Regions.pickle')
+                region = Regions[self.xy]
+                if EID in region.content.keys():
+                    EID += f' {i}'
+            if self.territory:
+                # check for duplicate in territory
+                Territories = get_file('Territories.pickle')
+                TID = self.celestial.upper() + self.territory.lower()
+                territory = Territories[TID]
+                print(EID)
+                print(territory.content.keys())
+                if EID in territory.content.keys():
+                    EID += f' {i}'
+            return EID
+        i += 1
+        EID = check_duplicate(self, EID)
+        return EID
 
     def set_new_region(self, new_region_xy):
         """Trigger function used to move the entity into a new region
@@ -118,3 +147,5 @@ class Entity:
             LID['LocFile'] = 'Regions.pickle'
             LID['LocKey'] = self.xy
         return LID
+
+Region((0,0))
