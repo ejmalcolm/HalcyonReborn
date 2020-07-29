@@ -75,7 +75,7 @@ def payload_manage(pload):
         Task(sourceLID, trigger_time, pload.onCompleteFunc, pload.onCompleteArgs)
     # * message management and output
     # We unpack the messages into a single string:
-    bot_message = '```'  # send it as a code block
+    bot_message = '```yaml\n'  # send it as a code block
     for sub_message in pload.messages:
         bot_message = bot_message + sub_message + '\n'
     # get rid of the final linebreak and complete codeblock

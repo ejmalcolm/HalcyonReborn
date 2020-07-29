@@ -21,8 +21,8 @@ class Actor(Entity):
 
     def inspect(self):
         """Returns details describing the current state of this entity
-        
-        Has inventory added"""
+
+        Includes inventory, unlike Entity.inspect()"""
         messages = [f'A {type(self).__name__} belonging to {self.owner}.']
         if self.xy:
             messages.append(f'It is currently in the region {self.xy}')
@@ -65,7 +65,7 @@ class Harvester(Actor):
 
     def __init__(self, owner, xy=None,
                  celestial=None, territory=None, busy=False,
-                 harvest_time=1):
+                 speed_land=1, harvest_time=1):
         self.harvest_time = harvest_time
         super().__init__(owner, xy, celestial=celestial, territory=territory, busy=busy)
 
@@ -88,7 +88,7 @@ class Harvester(Actor):
                 return Payload(self.get_LID(), messages, isTaskMaker=True,
                                taskDuration=duration,
                                onCompleteFunc=terr_obj.resource_harvested,
-                               onCompleteArgs=[resource_name, self.id])
+                               onCompleteArgs=[resource_name, self.eid])
             elif terr_obj.resource[resource_name] == 0:
                 messages = [f'The {resource_name} in {self.territory} is depleted.',
                             f'Wait for Evan to implement the regeneration mechanic.']
@@ -107,7 +107,7 @@ class Builder(Actor):
 
     def __init__(self, owner, xy=None,
                  celestial=None, territory=None, busy=False,
-                 build_time=(1/3)):
+                 speed_land=1, build_time=1):
         self.build_time = build_time
         super().__init__(owner, xy, celestial=celestial, territory=territory, busy=busy)
 
@@ -129,3 +129,12 @@ class Builder(Actor):
             # if the name doesn't exist in the territory
             messages = [f'There is no plan named "{plan_name}" in {self.territory}.']
             return Payload(self.get_LID(), messages)
+
+
+class Automaton(Builder, Harvester):
+
+    def __init__(self, owner, xy=None,
+                 celestial=None, territory=None):
+        Harvester.__init__(self, owner, harvest_time=(1/6))
+        Builder.__init__(self, owner, build_time=(1/3))
+        Actor.__init__(self, owner, xy=xy, celestial=celestial, territory=territory)

@@ -11,25 +11,17 @@ THINGS THAT CAME UP
 
 0.1.0 -- THE PLAYABLE BUILD
 
-- change scan to be able to scan territory and regions
-- inspect things in territories and in regions
-
-- actors
-    - Start with Automatons only
-    - Abilities: move, gather resources, build, enter vehicle
-    - ! PROBLEM: how do we deal with having 2 entities of the same type in the same region/territory
+- build the most basic building possible
+    - 3 tags: 
+    - more to demonstrate resources than anything else 
 
 - actor/halcyon interaction
-    - Automatons can be produced with a Halcyon ability
     - Halcyon can "carry" Actors from place to place
     - Actors can leave the Halcyon when it's landed
 
-- build the most basic building possible
-    - set up basic tag system
-    - more to demonstrate resources than anything else 
-
 0.2.0 -- MAKE THINGS NICE
 
+- Automatons can be produced with a Halcyon ability
 - add cogs organizing commands
 - add more interface stuff
     - sub-inspection interfaces, e.g. inspecting Planet opens an interface linked to inspecting Entities

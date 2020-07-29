@@ -46,7 +46,7 @@ def error_helper(coro):
 
 
 def get_entity_obj(entity_display, target_xy=None, target_celestial=None, target_territory=None,):
-    """Gets a target entity object given a entity_string and a region
+    """Gets a target entity object given the entity display name and a region
 
     entity_display -- The display name of an entity, e.g. "Breq's Halcyon" \n
     target_xy -- The "(x, y)" coordinates of the region containing the entity
@@ -59,20 +59,16 @@ def get_entity_obj(entity_display, target_xy=None, target_celestial=None, target
         # get the region
         Regions = get_file('Regions.pickle')
         target_region = Regions[region_string_to_int(target_xy)]
-        # get the entity's ID
-        entity_id = entity_display_to_id(entity_display)
         # get the entity object
-        target_entity = target_region.content[entity_id]
+        target_entity = target_region.content[entity_display]
         return target_entity
     if target_territory:
         # if it's in the territory
         Territories = get_file('Territories.pickle')
         TID = target_celestial.upper() + target_territory.lower()
         target_territory = Territories[TID]
-        # get the entity's ID
-        entity_id = entity_display_to_id(entity_display)
         # get the entity object
-        target_entity = target_territory.content[entity_id]
+        target_entity = target_territory.content[entity_display]
         return target_entity
 
 # * BG TASKS * #
@@ -104,7 +100,7 @@ async def on_command_error(ctx, error):
         if 'KeyError' in err_string:
             missing_ID = err_string.split()[-1]
             messages = [f'A lookup failed when looking under the ID {missing_ID}.',
-                        'You may have mistyped the entity name, or are searching in the wrong region/territory.'
+                        'You may have mistyped the entity name, or are searching in the wrong region/territory.',
                         'Try ~scanning the region or territory to make sure the entity is in it.']
             output = payload_manage(Payload(None, messages))
             await ctx.send(output)

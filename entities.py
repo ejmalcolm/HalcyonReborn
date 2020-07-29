@@ -16,12 +16,12 @@ class Entity:
         self.busy = busy  # If the vehicle is doing something
         # get all the functions that can be "cast"-- abilities in game terms
         self.abilities = [f[2:] for f in dir(type(self)) if f.startswith('A_')]
-        # EID stuff and adding self
+        # set EID and add to area
+        # note that EID must be reset whenever unit is added to new area
         self.eid = self.get_eid()
         if self.xy:
             # store self into Regions.pickle
             Regions = get_file('Regions.pickle')
-            print(f'EID BEING USED: {self.eid}')
             Regions[self.xy].content[self.eid] = self
             save_file(Regions, 'Regions.pickle')
         if self.territory:
@@ -40,7 +40,7 @@ class Entity:
 
         def check_duplicate(self, EID):
 
-            print(f'CHECKING DUPLICATE: {EID}')
+            # print(f'CHECKING DUPLICATE: {EID}')
 
             if self.xy:
                 # check for duplicate in region
@@ -88,9 +88,9 @@ class Entity:
         """
         # get the region storage file
         Regions = get_file('Regions.pickle')
-        if self.id in Regions[self.xy].content:
+        if self.eid in Regions[self.xy].content:
             # remove self from old region
-            del Regions[self.xy].content[self.id]
+            del Regions[self.xy].content[self.eid]
         else:
             # triggered if the entity is on a celestial
             # therefore:
@@ -100,12 +100,12 @@ class Entity:
             # remove self from the territory and celestial
             self.territory = None
             self.celestial = None
-            del Territories[TID].content[self.id]
+            del Territories[TID].content[self.eid]
             save_file(Territories, 'Territories.pickle')
         # add self to new region
         self.xy = new_region_xy
         new_region = Regions[new_region_xy]
-        new_region.content[self.id] = self
+        new_region.content[self.get_eid()] = self
         save_file(Regions, 'Regions.pickle')
         # managing output (what the bot should send)
         messages = [f'{self} has arrived in {new_region_xy}']
@@ -125,21 +125,22 @@ class Entity:
             # delete self, if in a region
             Regions = get_file('Regions.pickle')
             old_region = Regions[self.xy]
-            del old_region.content[self.id]
+            del old_region.content[self.eid]
             save_file(Regions, 'Regions.pickle')
         if self.territory:
             # delete self, if in a territory
             Territories = get_file('Territories.pickle')
             TID = self.celestial.upper() + self.territory.lower()
             old_territory = Territories[TID]
-            del old_territory.content[self.id]
+            del old_territory.content[self.eid]
             save_file(Territories, 'Territories.pickle')
         # now we add to new territory
         Territories = get_file('Territories.pickle')
         new_territory = Territories[new_territory_ID]
-        new_territory.content[self.id] = self
-        # change self.territory
+        self.celestial = new_territory.parent
         self.territory = new_territory.label
+        new_territory.content[self.get_eid()] = self
+        # change self.territory
         save_file(Territories, 'Territories.pickle')
         # bot output
         messages = [f'{self} has arrived in {new_territory}']
@@ -159,7 +160,7 @@ class Entity:
         """Returns the Location ID of this object
 
         Used for creating Payloads to send to botInterface"""
-        LID = {'EID': self.id}
+        LID = {'EID': self.eid}
         if self.territory:
             LID['LocFile'] = 'Territories.pickle'
             LID['LocKey'] = self.celestial.upper() + self.territory.lower()

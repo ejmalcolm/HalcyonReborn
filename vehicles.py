@@ -1,7 +1,7 @@
 from regions import Region, Celestial, Planet, Territory
 from players import Player
 from entities import Entity
-from actors import Harvester
+from actors import Automaton
 
 from botInterface import Payload, region_string_to_int, payload_manage
 
@@ -34,9 +34,6 @@ class Spaceship(Vehicle):
         self.speed_space = speed_space
         self.speed_landing = speed_landing
         super().__init__(owner, xy)
-
-    def __str__(self):
-        return f'{self.owner}\'s Spaceship'
 
     def A_move_region(self, adjacent_region):
         """Move to an adjacent region of space
@@ -78,7 +75,7 @@ class Spaceship(Vehicle):
         return Payload(self.get_LID(), messages, isTaskMaker=True,
                        taskDuration=duration,
                        onCompleteFunc=landing_target.landed_on,
-                       onCompleteArgs=[self.id, target_territory])
+                       onCompleteArgs=[self.eid, target_territory])
 
     def A_take_off(self):
         """Takes off from the current celestial into the surrounding region"""
@@ -95,9 +92,6 @@ class Halcyon(Spaceship):
 
     def __init__(self, owner, xy):
         super().__init__(owner, xy, speed_space=1)
-
-    def __str__(self):
-        return f"{self.owner}'s Halcyon"
 
     def A_calculate_slingshot(self, celest_1, celest_2):
         # * bot-facing function * #
@@ -144,25 +138,20 @@ class Halcyon(Spaceship):
                            onCompleteArgs=self.linkRegion)
 
 
-# Region((0, 0))
-# Region((1, 0))
-# Primus = Planet('Primus', (0, 0))
-# Evan = Player(155782008826494976, 'Evan')
-# James = Player(155783768307793920, 'James')
-# Eriq = Player(155560259065348097, 'Eriq')
-# Emily = Player(612827918984413256, 'Em-Head')
-# Storm = Player(155794075432255489, 'Storm')
-# y = Halcyon('Evan', (0, 0))
-# x = Halcyon('James', (0, 0))
-# z = Halcyon('Eriq', (0, 0))
-# a = Halcyon('Emily', (0, 0))
-# Harvester('Evan', celestial='Primus', territory='North')
-# Harvester('Evan', celestial='Primus', territory='North')
-# Harvester('Evan', celestial='Primus', territory='North')
-# Harvester('James', celestial='Primus', territory='North')
-# Harvester('James', celestial='Primus', territory='North')
-# Harvester('Eriq', celestial='Primus', territory='North')
-# Harvester('Storm', celestial='Primus', territory='North')
+if __name__ == "__main__":
+    Region((0, 0))
+    Region((1, 0))
+    Primus = Planet('Primus', (0, 0))
+    Evan = Player(155782008826494976, 'Evan')
+    James = Player(155783768307793920, 'James')
+    Eriq = Player(155560259065348097, 'Eriq')
+    Emily = Player(612827918984413256, 'Em-Head')
+    Storm = Player(155794075432255489, 'Storm')
+    y = Halcyon('Evan', (0, 0))
+    x = Halcyon('James', (0, 0))
+    z = Halcyon('Eriq', (0, 0))
+    a = Halcyon('Emily', (0, 0))
+    Automaton('Evan', celestial='Primus', territory='North')
 
 
 # Territories = get_file('Territories.pickle')
