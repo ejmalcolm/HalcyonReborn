@@ -1,12 +1,5 @@
 from botInterface import Payload
-
-MATERIAL_TAGS = ['Wood', 'Stone', 'Metal']
-STRUCTURE_TAGS = ['Base']
-FUNCTION_TAGS = ['SPAWNER|Automaton']
-
-MATERIAL_TAGS = [] # add the Tag() objects to these
-STRUCTURE_TAGS = []
-FUNCTIONS_TAGS = []
+from files import get_file, save_file
 
 
 class Tag():
@@ -60,12 +53,14 @@ class BuildingPlan():
         pass
 
 
-Wood = Tag('Material', 'Wood', attributes=['Flammable', 'Organic'], statistics={'HP' : 10, 'UoC' : 1})
-# Stone
-# Metal
-# Base
-# SPAWNER|Automaton
-
+Tags = get_file('Tags.pickle')
+Wood = Tag('Material', 'Wood', attributes=['Flammable', 'Organic'], statistics={'HP': 10, 'UoC': 1})
+Stone = Tag('Material', 'Stone', attributes=[], statistics={'HP': 15, 'UoC': 3})
+Metal = Tag('Material', 'Metal', attributes=['Electrical Conductivity', 'Thermal Conductivity'], statistics={'HP': 15, 'UoC': 5})
+Base = Tag('Structure', 'Base', attributes=[], statistics={'FS': 1})
+SPAWNERautomaton = Tag('Structure', 'SPAWNER|Automaton')
+Tags = [Wood, Stone, Metal, Base, SPAWNERautomaton]
+save_file(Tags, 'Tags.pickle')
 
 x = BuildingPlan('Plan', 1, [Wood, Wood])
 print(x.construction_remaining)
