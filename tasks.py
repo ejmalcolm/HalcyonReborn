@@ -33,8 +33,6 @@ class Task:
         sourceKey = sourceLID['LocKey']
         sourceEID = sourceLID['EID']
         storageDict = get_file(sourceFile)
-        print('At task' + str(sourceLID))
-        print(storageDict[sourceKey].content)
         source = storageDict[sourceKey].content[sourceEID]
         source.busy = False
         save_file(storageDict, sourceFile)

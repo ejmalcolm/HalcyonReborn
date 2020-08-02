@@ -345,8 +345,10 @@ async def use_ability(ctx, *args):
         arg_string1 = msg.content
         # first, split off the tilde from the name
         arg_string2 = arg_string1.replace('~', '')
-        # then, split on spaces
-        args = arg_string2.split()
+        # remove spaces
+        args = arg_string2.split('"')
+        # then, split on quotes
+        args = [a for a in args if bool(a)]
         # then we call the method
         output = payload_manage(ability_method(*args))
         await ctx.send(output)

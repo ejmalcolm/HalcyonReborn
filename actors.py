@@ -124,7 +124,12 @@ class Builder(Actor):
         try:
             # get the building plan obj
             bpan = terr_obj.content[plan_name]
-            print(bpan)
+            messages = [f'{bpan} is now being worked on by {self}.',
+                        f"The {bpan}'s progress will be advanced in {self.build_time} hours."]
+            return Payload(self.get_LID(), messages,
+                           isTaskMaker=True, taskDuration=self.build_time,
+                           onCompleteFunc=bpan.worked_on,
+                           onCompleteArgs=[1])
         except KeyError:
             # if the name doesn't exist in the territory
             messages = [f'There is no plan named "{plan_name}" in {self.territory}.']
@@ -138,3 +143,13 @@ class Automaton(Builder, Harvester):
         Harvester.__init__(self, owner, harvest_time=(1/6))
         Builder.__init__(self, owner, build_time=(1/3))
         Actor.__init__(self, owner, xy=xy, celestial=celestial, territory=territory)
+
+
+class Engineer(Actor):
+
+    def __init__(self, owner, xy=None,
+                 celestial=None, territory=None):
+        super().__init__(self, owner, xy=xy, celestial=celestial, territory=territory)
+    
+    # def A_create_plan(self):
+

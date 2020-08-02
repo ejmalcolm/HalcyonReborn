@@ -2,6 +2,7 @@ from regions import Region, Celestial, Planet, Territory
 from players import Player
 from entities import Entity
 from actors import Automaton
+from buildings import BuildingPlan
 
 from botInterface import Payload, region_string_to_int, payload_manage
 
@@ -152,6 +153,8 @@ if __name__ == "__main__":
     z = Halcyon('Eriq', (0, 0))
     a = Halcyon('Emily', (0, 0))
     Automaton('Evan', celestial='Primus', territory='North')
+    BuildingPlan('Evan', 'Automaton Cradle', tags=['Metal', 'Base', 'SPAWNER|Automaton'], 
+                 celestial='Primus', territory='North')
 
 
 # Territories = get_file('Territories.pickle')
